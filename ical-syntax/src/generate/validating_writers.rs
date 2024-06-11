@@ -1,5 +1,47 @@
 use std::fmt::Write;
 
+/// A validating writer for the `name` grammar:
+///
+/// ```abnf
+/// name          = iana-token / x-name
+///
+/// iana-token    = 1*(ALPHA / DIGIT / "-")
+/// ; iCalendar identifier registered with IANA
+///
+/// x-name        = "X-" [vendorid "-"] 1*(ALPHA / DIGIT / "-")
+/// ; Reserved for experimental use.
+///
+/// vendorid      = 3*(ALPHA / DIGIT)
+/// ; Vendor identification
+/// ```
+///
+/// This writer will only validate that the written text conforms to the
+/// `iana-token` grammar. In practice, there is a lot of violation of the
+/// `x-name` grammar anyway, except for the leading `X-`.
+///
+/// Writing text containing forbidden characters will yield `Result::Err`.
+pub struct NameWriter<W: Write> {
+    inner: W,
+}
+
+impl<W: Write> Write for NameWriter<W> {
+    fn write_str(&mut self, s: &str) -> std::fmt::Result {
+        // Validate as iana-token from the BNF.
+        let is_valid = s.bytes().all(|x| x.is_ascii_alphanumeric() || x == b'-');
+        if !is_valid {
+            return Err(std::fmt::Error);
+        }
+
+        self.inner.write_str(s)
+    }
+}
+
+impl<W: Write> NameWriter<W> {
+    pub fn new(inner: W) -> Self {
+        Self { inner }
+    }
+}
+
 /// A writer for the quoted-string grammar:
 ///
 /// ```abnf
