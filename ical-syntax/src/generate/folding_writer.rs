@@ -7,8 +7,8 @@ const CRLF: &str = "\r\n";
 /// A generator for "content lines", which are subject to folding at line
 /// lengths of at most 75 octets.
 ///
-/// To maintain human readability, this implementation folds at UTF-8 codepoint
-/// boundaries.
+/// To maintain some human readability, this implementation folds at UTF-8
+/// codepoint boundaries. Grapheme clusters may be split.
 pub struct FoldingWriter<W: Write> {
     inner: W,
     rem_line_len: u32,
