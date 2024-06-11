@@ -23,6 +23,7 @@ use std::fmt::Write;
 // TODO: Consider ^-escaping as defined in https://datatracker.ietf.org/doc/html/rfc6868
 pub struct QuotedStringWriter<W: Write> {
     inner: W,
+    is_closed: bool,
 }
 
 impl<W: Write> Write for QuotedStringWriter<W> {
@@ -42,12 +43,25 @@ impl<W: Write> Write for QuotedStringWriter<W> {
 impl<W: Write> QuotedStringWriter<W> {
     pub fn new(mut inner: W) -> Result<Self, std::fmt::Error> {
         inner.write_char('"')?;
-        Ok(Self { inner })
+        Ok(Self {
+            inner,
+            is_closed: false,
+        })
     }
 
-    pub fn close(mut self) -> Result<W, std::fmt::Error> {
+    pub fn close(mut self) -> std::fmt::Result {
         self.inner.write_char('"')?;
-        Ok(self.inner)
+        self.is_closed = true;
+        Ok(())
+    }
+}
+
+impl<W: Write> Drop for QuotedStringWriter<W> {
+    fn drop(&mut self) {
+        assert!(
+            self.is_closed,
+            "QuotedStringWriter::close() must be called before dropping the value"
+        );
     }
 }
 

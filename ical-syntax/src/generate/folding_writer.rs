@@ -12,6 +12,7 @@ const CRLF: &str = "\r\n";
 pub struct FoldingWriter<W: Write> {
     inner: W,
     rem_line_len: u32,
+    passed_eol: bool,
 }
 
 impl<W: Write> FoldingWriter<W> {
@@ -19,11 +20,22 @@ impl<W: Write> FoldingWriter<W> {
         Self {
             inner,
             rem_line_len: MAX_LINE_LENGTH,
+            passed_eol: false,
         }
     }
 
     pub fn eol(mut self) -> std::fmt::Result {
+        self.passed_eol = true;
         self.inner.write_str(CRLF)
+    }
+}
+
+impl<W: Write> Drop for FoldingWriter<W> {
+    fn drop(&mut self) {
+        assert!(
+            self.passed_eol,
+            "FoldingWriter::eol() must be called before dropping the value"
+        );
     }
 }
 
