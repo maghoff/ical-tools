@@ -2,13 +2,15 @@ use std::fmt::Write;
 
 /// A writer for the quoted-string grammar:
 ///
-///     quoted-string = DQUOTE *QSAFE-CHAR DQUOTE
+/// ```abnf
+/// quoted-string = DQUOTE *QSAFE-CHAR DQUOTE
 ///
-///     QSAFE-CHAR    = WSP / %x21 / %x23-7E / NON-US-ASCII
-///     ; Any character except CONTROL and DQUOTE
+/// QSAFE-CHAR    = WSP / %x21 / %x23-7E / NON-US-ASCII
+/// ; Any character except CONTROL and DQUOTE
 ///
-///     CONTROL       = %x00-08 / %x0A-1F / %x7F
-///     ; All the controls except HTAB
+/// CONTROL       = %x00-08 / %x0A-1F / %x7F
+/// ; All the controls except HTAB
+/// ```
 ///
 /// There is no escaping mechanism inside the quoted string, so if you want to
 /// write, say, a URI containing the DQUOTE character, it must be escaped using
@@ -67,14 +69,16 @@ impl<W: Write> Drop for QuotedStringWriter<W> {
 
 /// A writer for the paramtext grammar:
 ///
-///     paramtext     = *SAFE-CHAR
+/// ```abnf
+/// paramtext     = *SAFE-CHAR
 ///
-///     SAFE-CHAR     = WSP / %x21 / %x23-2B / %x2D-39 / %x3C-7E
-///                    / NON-US-ASCII
-///     ; Any character except CONTROL, DQUOTE, ";", ":", ","
+/// SAFE-CHAR     = WSP / %x21 / %x23-2B / %x2D-39 / %x3C-7E
+///               / NON-US-ASCII
+/// ; Any character except CONTROL, DQUOTE, ";", ":", ","
 ///
-///     CONTROL       = %x00-08 / %x0A-1F / %x7F
-///     ; All the controls except HTAB
+/// CONTROL       = %x00-08 / %x0A-1F / %x7F
+/// ; All the controls except HTAB
+/// ```
 ///
 /// Writing text containing forbidden characters will yield `Result::Err`.
 ///
