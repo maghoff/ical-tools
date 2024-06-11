@@ -19,6 +19,8 @@ use std::fmt::Write;
 /// This writer inserts the leading and trailing DQUOTEs for the quoted string.
 ///
 /// Use [`ParamtextWriter`] for writing unquoted param values.
+//
+// TODO: Consider ^-escaping as defined in https://datatracker.ietf.org/doc/html/rfc6868
 pub struct QuotedStringWriter<W: Write> {
     inner: W,
 }
