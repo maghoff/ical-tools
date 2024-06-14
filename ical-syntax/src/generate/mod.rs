@@ -2,6 +2,7 @@ mod content_line;
 mod folding_writer;
 mod line_stream;
 mod validating_writers;
+mod writer;
 
 pub use content_line::ContentLine;
 pub use folding_writer::FoldingWriter;
