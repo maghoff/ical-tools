@@ -10,13 +10,36 @@ use std::fmt::Write;
 #[derive(PartialEq, Eq, Debug)]
 pub(crate) enum State {
     Initial,
-    Name,
-    Param,
+    AfterName,
+    AfterParamName,
+    AfterParamValue,
+    Value,
 }
 
 pub struct ContentLine<W: Write> {
     pub(crate) inner: FoldingWriter<W>,
     pub(crate) state: State,
+}
+
+pub trait ParamValueWriter<W: Write> {
+    fn param_value_unquoted_writer(
+        &mut self,
+    ) -> Result<ParamtextWriter<&'_ mut FoldingWriter<W>>, std::fmt::Error>;
+
+    fn param_value_unquoted(&mut self, fmt: impl Display) -> std::fmt::Result {
+        let mut pv = self.param_value_unquoted_writer()?;
+        write!(&mut pv, "{}", fmt)
+    }
+
+    fn param_value_quoted_writer(
+        &mut self,
+    ) -> Result<QuotedStringWriter<&'_ mut FoldingWriter<W>>, std::fmt::Error>;
+
+    fn param_value_quoted(&mut self, fmt: impl Display) -> std::fmt::Result {
+        let mut pv = self.param_value_quoted_writer()?;
+        write!(&mut pv, "{}", fmt)?;
+        pv.close()
+    }
 }
 
 impl<W: Write> ContentLine<W> {
@@ -29,7 +52,7 @@ impl<W: Write> ContentLine<W> {
 
     pub fn name_writer(&mut self) -> NameWriter<&'_ mut FoldingWriter<W>> {
         assert_eq!(self.state, State::Initial);
-        self.state = State::Name;
+        self.state = State::AfterName;
 
         NameWriter::new(&mut self.inner)
     }
@@ -42,8 +65,8 @@ impl<W: Write> ContentLine<W> {
     pub fn param_name_writer(
         &mut self,
     ) -> Result<NameWriter<&'_ mut FoldingWriter<W>>, std::fmt::Error> {
-        assert_eq!(self.state, State::Name);
-        self.state = State::Param;
+        assert!(self.state == State::AfterName || self.state == State::AfterParamValue);
+        self.state = State::AfterParamName;
 
         self.inner.write_char(';')?;
 
@@ -55,37 +78,18 @@ impl<W: Write> ContentLine<W> {
         write!(&mut pn, "{}", fmt)
     }
 
-    pub fn param_value_unquoted_writer(
-        &mut self,
-    ) -> Result<ParamtextWriter<&'_ mut FoldingWriter<W>>, std::fmt::Error> {
-        assert_eq!(self.state, State::Param);
-        self.state = State::Name;
+    fn goto_param_value_state(&mut self) -> std::fmt::Result {
+        assert!(self.state == State::AfterParamName || self.state == State::AfterParamValue);
 
-        self.inner.write_char('=')?;
+        if self.state == State::AfterParamName {
+            self.inner.write_char('=')?;
+        } else {
+            self.inner.write_char(',')?;
+        }
 
-        Ok(ParamtextWriter::new(&mut self.inner))
-    }
+        self.state = State::AfterParamValue;
 
-    pub fn param_value_unquoted(&mut self, fmt: impl Display) -> std::fmt::Result {
-        let mut pv = self.param_value_unquoted_writer()?;
-        write!(&mut pv, "{}", fmt)
-    }
-
-    pub fn param_value_quoted_writer(
-        &mut self,
-    ) -> Result<QuotedStringWriter<&'_ mut FoldingWriter<W>>, std::fmt::Error> {
-        assert_eq!(self.state, State::Param);
-        self.state = State::Name;
-
-        self.inner.write_char('=')?;
-
-        QuotedStringWriter::new(&mut self.inner)
-    }
-
-    pub fn param_value_quoted(&mut self, fmt: impl Display) -> std::fmt::Result {
-        let mut pv = self.param_value_quoted_writer()?;
-        write!(&mut pv, "{}", fmt)?;
-        pv.close()
+        Ok(())
     }
 
     pub fn param_unquoted(&mut self, name: impl Display, value: impl Display) -> std::fmt::Result {
@@ -99,7 +103,8 @@ impl<W: Write> ContentLine<W> {
     }
 
     pub fn value_writer(&mut self) -> Result<&'_ mut FoldingWriter<W>, std::fmt::Error> {
-        assert_eq!(self.state, State::Name);
+        assert!(self.state == State::AfterName || self.state == State::AfterParamValue);
+        self.state = State::Value;
 
         self.inner.write_char(':')?;
 
@@ -112,7 +117,24 @@ impl<W: Write> ContentLine<W> {
     }
 
     pub fn eol(self) -> std::fmt::Result {
+        assert_eq!(self.state, State::Value);
         self.inner.eol()
+    }
+}
+
+impl<W: Write> ParamValueWriter<W> for ContentLine<W> {
+    fn param_value_unquoted_writer(
+        &mut self,
+    ) -> Result<ParamtextWriter<&'_ mut FoldingWriter<W>>, std::fmt::Error> {
+        self.goto_param_value_state()?;
+        Ok(ParamtextWriter::new(&mut self.inner))
+    }
+
+    fn param_value_quoted_writer(
+        &mut self,
+    ) -> Result<QuotedStringWriter<&'_ mut FoldingWriter<W>>, std::fmt::Error> {
+        self.goto_param_value_state()?;
+        QuotedStringWriter::new(&mut self.inner)
     }
 }
 
@@ -212,6 +234,27 @@ mod test {
         assert_eq!(
             &buf,
             "X-PARAM-TEST;UNQUOTED=unquoted text;QUOTED=\"Quoted text, with comma and a ;\r\n \":value\r\n"
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn content_line_param_value_list() -> std::fmt::Result {
+        let mut buf = String::new();
+        let mut cl = ContentLine::new(&mut buf);
+
+        cl.name("X-PARAM-TEST")?;
+        cl.param_name("LIST")?;
+        cl.param_value_unquoted("unquoted text")?;
+        cl.param_value_quoted("Quoted text, with comma and a ;")?;
+        cl.value("value")?;
+
+        cl.eol()?;
+
+        assert_eq!(
+            &buf,
+            "X-PARAM-TEST;LIST=unquoted text,\"Quoted text, with comma and a ;\":value\r\n"
         );
 
         Ok(())
