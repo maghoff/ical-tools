@@ -8,7 +8,7 @@ mod test {
     fn writer() -> std::fmt::Result {
         use crate::structure::icalstream::{
             components::ICalObject,
-            properties::{ProdId, Version},
+            properties::calendar::{ProdId, Version},
         };
 
         let mut buf = String::new();

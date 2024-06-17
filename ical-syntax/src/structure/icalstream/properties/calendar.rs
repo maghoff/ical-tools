@@ -1,6 +1,8 @@
+//! [RFC 5545 3.7: Calendar Properties](https://www.rfc-editor.org/rfc/rfc5545#section-3.7)
+
 use crate::structure::{value_types::*, Property};
 
-use super::components::ICalObjectProperty;
+use crate::structure::icalstream::components::ICalObjectProperty;
 
 /// Property Name:  VERSION
 ///

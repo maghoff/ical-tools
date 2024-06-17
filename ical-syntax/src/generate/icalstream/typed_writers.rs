@@ -3,7 +3,7 @@ use std::fmt::{Error, Write};
 use crate::{
     generate::{AsValueType, ComponentWriter, PropertyWriter, Writer},
     structure::{
-        icalstream::{components::*, properties::*},
+        icalstream::{components::*, properties::calendar::*},
         value_types::*,
     },
 };
