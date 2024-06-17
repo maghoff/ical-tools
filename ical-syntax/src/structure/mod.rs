@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 pub mod icalstream;
 pub mod value_types;
 
@@ -24,3 +26,15 @@ pub trait ParamValueItem {
 }
 
 pub trait ParamValue {}
+
+pub struct One<Item: ParamValueItem> {
+    _item: PhantomData<Item>,
+}
+
+pub struct SetOf<Item: ParamValueItem> {
+    _item: PhantomData<Item>,
+}
+
+impl<Item: ParamValueItem> ParamValue for One<Item> {}
+
+impl<Item: ParamValueItem> ParamValue for SetOf<Item> {}

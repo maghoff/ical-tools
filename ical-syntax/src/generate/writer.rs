@@ -4,7 +4,7 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
-use crate::structure::{Component, Param, ParamValue, ParamValueItem, Property, ValueType};
+use crate::structure::*;
 
 use super::{content_line::ParamValueWriter, ContentLine, LineStream};
 
@@ -15,18 +15,6 @@ pub trait AsParamValueItem<To: ParamValueItem> {
 pub trait AsParamValue<To: ParamValue> {
     fn write_to<W: Write, P: ParamValueWriter<W>>(self, w: &mut P) -> std::fmt::Result;
 }
-
-pub struct One<Item: ParamValueItem> {
-    _item: PhantomData<Item>,
-}
-
-pub struct SetOf<Item: ParamValueItem> {
-    _item: PhantomData<Item>,
-}
-
-impl<Item: ParamValueItem> ParamValue for One<Item> {}
-
-impl<Item: ParamValueItem> ParamValue for SetOf<Item> {}
 
 impl<T, Inner: ParamValueItem> AsParamValue<One<Inner>> for T
 where
