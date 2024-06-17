@@ -27,7 +27,7 @@ use crate::structure::ValueType;
 /// Description:  Property values with this value type MUST also include
 /// the inline encoding parameter sequence of ";ENCODING=BASE64".
 /// That is, all inline binary data MUST first be character encoded
-/// using the "BASE64" encoding method defined in [RFC2045].  No
+/// using the "BASE64" encoding method defined in [RFC4648].  No
 /// additional content value encoding (i.e., BACKSLASH character
 /// encoding, see Section 3.3.11) is defined for this value type.
 ///
@@ -48,7 +48,7 @@ use crate::structure::ValueType;
 ///
 /// Reference: [RFC 5545 3.3.1](https://www.rfc-editor.org/rfc/rfc5545#section-3.3.1)
 ///
-/// [RFC2045]: https://www.rfc-editor.org/rfc/rfc2045
+/// [RFC4648]: https://www.rfc-editor.org/rfc/rfc4648
 pub struct Binary;
 
 impl ValueType for Binary {}
@@ -154,7 +154,7 @@ impl ValueType for CalAddress {}
 /// Reference: [RFC 5545
 /// 3.3.4](https://www.rfc-editor.org/rfc/rfc5545#section-3.3.4)
 ///
-/// [ISO.8601.2004]: https://www.rfc-editor.org/rfc/rfc5545#ref-ISO.8601.200422
+/// [ISO.8601.2004]: https://www.rfc-editor.org/rfc/rfc5545#ref-ISO.8601.2004
 pub struct Date;
 
 impl ValueType for Date {}
@@ -285,6 +285,8 @@ impl ValueType for Date {}
 ///
 /// Reference: [RFC 5545
 /// 3.3.5](https://www.rfc-editor.org/rfc/rfc5545#section-3.3.5)
+///
+/// [ISO.8601.2004]: https://www.rfc-editor.org/rfc/rfc5545#ref-ISO.8601.2004
 pub struct DateTime;
 
 impl ValueType for DateTime {}
@@ -312,11 +314,11 @@ impl ValueType for DateTime {}
 ///
 /// Description:  If the property permits, multiple "duration" values are
 /// specified by a COMMA-separated list of values.  The format is based on the
-/// \[ISO.8601.2004\] complete representation basic format with designators
-/// for the duration of time.  The format can represent nominal durations
-/// (weeks and days) and accurate durations (hours, minutes, and seconds).
-/// Note that unlike \[ISO.8601.2004\], this value type doesn't support the
-/// "Y" and "M" designators to specify durations in terms of years and months.
+/// [ISO.8601.2004] complete representation basic format with designators for
+/// the duration of time.  The format can represent nominal durations (weeks
+/// and days) and accurate durations (hours, minutes, and seconds). Note that
+/// unlike [ISO.8601.2004], this value type doesn't support the "Y" and "M"
+/// designators to specify durations in terms of years and months.
 ///
 /// The duration of a week or a day depends on its position in the calendar.
 /// In the case of discontinuities in the time scale, such as the change from
@@ -348,6 +350,8 @@ impl ValueType for DateTime {}
 ///
 /// Reference: [RFC 5545
 /// 3.3.6](https://www.rfc-editor.org/rfc/rfc5545#section-3.3.6)
+///
+/// [ISO.8601.2004]: https://www.rfc-editor.org/rfc/rfc5545#ref-ISO.8601.2004
 pub struct Duration;
 
 impl ValueType for Duration {}
@@ -476,6 +480,8 @@ impl ValueType for Integer {}
 ///
 /// Reference: [RFC 5545
 /// 3.3.9](https://www.rfc-editor.org/rfc/rfc5545#section-3.3.9)
+///
+/// [ISO.8601.2004]: https://www.rfc-editor.org/rfc/rfc5545#ref-ISO.8601.2004
 pub struct PeriodOfTime;
 
 impl ValueType for PeriodOfTime {}
@@ -804,6 +810,8 @@ impl ValueType for PeriodOfTime {}
 ///
 /// Reference: [RFC 5545
 /// 3.3.10](https://www.rfc-editor.org/rfc/rfc5545#section-3.3.10)
+///
+/// [ISO.8601.2004]: https://www.rfc-editor.org/rfc/rfc5545#ref-ISO.8601.2004
 pub struct RecurrenceRule;
 
 impl ValueType for RecurrenceRule {}
