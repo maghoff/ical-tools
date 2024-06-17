@@ -7,6 +7,11 @@ pub trait Component {
     const NAME: &'static str;
 }
 
+// TODO: Modelling of choice of value type, via VALUE= parameter
+// TODO: Modelling of comma-separated lists of values (eg RDATE)
+// TODO: Modelling of semicolon-separated parts for a value (eg VERSION, GEO)
+// --> see https://www.rfc-editor.org/rfc/rfc5545#section-3.1.1
+
 pub trait Property {
     const NAME: &'static str;
 
