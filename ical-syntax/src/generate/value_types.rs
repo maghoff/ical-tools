@@ -1,6 +1,6 @@
 use std::{borrow::Borrow, fmt::Write};
 
-use crate::{generate::AsValueType, structure::icalstream::value_types::*};
+use crate::{generate::AsValueType, structure::value_types::*};
 
 // TODO impl<T: AsRef<[u8]>> AsValueType<Binary> for T {
 

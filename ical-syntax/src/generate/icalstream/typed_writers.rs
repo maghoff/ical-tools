@@ -3,8 +3,8 @@ use std::fmt::{Error, Write};
 use crate::{
     generate::{AsValueType, ComponentWriter, PropertyWriter, Writer},
     structure::{
-        icalstream::{components::*, properties::*, value_types::*},
-        Component, Property,
+        icalstream::{components::*, properties::*},
+        value_types::*,
     },
 };
 
@@ -34,10 +34,6 @@ impl<W: Write> ICalStreamWriter<W> {
         ICalObjectWriter::new(self.component(ICalObject)?, prod_id)
     }
 }
-
-pub trait ICalStreamComponent: Component {}
-
-impl ICalStreamComponent for ICalObject {}
 
 pub struct ICalObjectWriter<'a, W: Write> {
     inner: ComponentWriter<'a, W, ICalObject>,
@@ -74,7 +70,3 @@ impl<'a, W: Write> ICalObjectWriter<'a, W> {
         self.inner.end()
     }
 }
-
-pub trait ICalObjectProperty: Property {}
-impl ICalObjectProperty for Version {}
-impl ICalObjectProperty for ProdId {}

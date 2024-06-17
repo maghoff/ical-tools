@@ -3,6 +3,7 @@ mod folding_writer;
 pub mod icalstream;
 mod line_stream;
 mod validating_writers;
+pub mod value_types;
 mod writer;
 
 pub use content_line::ContentLine;

@@ -1,6 +1,15 @@
 //! Calendar components, as defined in [RFC5545 3.6](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.6)
 
-use crate::structure::Component;
+use crate::structure::{Component, Property};
+
+/// iCalendar stream
+///
+/// An iCalendar stream, often contained in an *.ics file, contains a stream
+/// of [iCalendar objects][ICalObject].
+///
+/// Reference: [RFC5545
+/// 3.4](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.4)
+pub trait ICalStreamComponent: Component {}
 
 /// iCalendar Object
 ///
@@ -103,6 +112,11 @@ pub struct ICalObject;
 impl Component for ICalObject {
     const NAME: &'static str = "VCALENDAR";
 }
+
+impl ICalStreamComponent for ICalObject {}
+
+/// Property that belongs to an [ICalObject].
+pub trait ICalObjectProperty: Property {}
 
 /// Event Component
 ///

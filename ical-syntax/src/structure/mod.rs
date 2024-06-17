@@ -1,4 +1,5 @@
 pub mod icalstream;
+pub mod value_types;
 
 pub trait Component {
     const NAME: &'static str;

@@ -1,5 +1,4 @@
 pub mod typed_writers;
-pub mod value_types;
 
 #[cfg(test)]
 mod test {

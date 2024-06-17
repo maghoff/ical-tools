@@ -1,4 +1,6 @@
-use crate::structure::Property;
+use crate::structure::{value_types::*, Property};
+
+use super::components::ICalObjectProperty;
 
 /// Property Name:  VERSION
 ///
@@ -48,8 +50,10 @@ pub struct Version;
 impl Property for Version {
     const NAME: &'static str = "VERSION";
 
-    type ValueType = super::value_types::Text;
+    type ValueType = Text;
 }
+
+impl ICalObjectProperty for Version {}
 
 /// Property Name:  PRODID
 ///
@@ -98,5 +102,7 @@ pub struct ProdId;
 impl Property for ProdId {
     const NAME: &'static str = "PRODID";
 
-    type ValueType = super::value_types::Text;
+    type ValueType = Text;
 }
+
+impl ICalObjectProperty for ProdId {}
