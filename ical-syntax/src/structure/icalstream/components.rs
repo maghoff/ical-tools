@@ -118,6 +118,9 @@ impl ICalStreamComponent for ICalObject {}
 /// Property that belongs to an [ICalObject].
 pub trait ICalObjectProperty: Property {}
 
+/// Component that belongs to an [ICalObject].
+pub trait ICalObjectComponent: Component {}
+
 /// Event Component
 ///
 /// Component Name:  VEVENT
@@ -284,6 +287,11 @@ impl Component for EventC {
     const NAME: &'static str = "VEVENT";
 }
 
+impl ICalObjectComponent for EventC {}
+
+/// Property that belongs to an [EventC].
+pub trait EventCProperty: Property {}
+
 /// To-Do Component
 ///
 /// Component Name:  VTODO
@@ -391,6 +399,8 @@ impl Component for TodoC {
     const NAME: &'static str = "VTODO";
 }
 
+impl ICalObjectComponent for TodoC {}
+
 /// Journal Component
 ///
 /// Component Name:  VJOURNAL
@@ -482,6 +492,8 @@ pub struct JournalC;
 impl Component for JournalC {
     const NAME: &'static str = "VJOURNAL";
 }
+
+impl ICalObjectComponent for JournalC {}
 
 /// Free/Busy Component
 ///
@@ -625,6 +637,8 @@ pub struct FreeBusyC;
 impl Component for FreeBusyC {
     const NAME: &'static str = "VFREEBUSY";
 }
+
+impl ICalObjectComponent for FreeBusyC {}
 
 /// Time Zone Component
 ///
@@ -1023,17 +1037,26 @@ impl Component for TimeZoneC {
     const NAME: &'static str = "VTIMEZONE";
 }
 
+impl ICalObjectComponent for TimeZoneC {}
+
+/// A subcomponent of [TimeZoneC].
+pub trait TimeZoneCComponent {}
+
 /// A subcomponent of [TimeZoneC].
 pub struct StandardC;
 impl Component for StandardC {
     const NAME: &'static str = "STANDARD";
 }
 
+impl TimeZoneCComponent for StandardC {}
+
 /// A subcomponent of [TimeZoneC].
 pub struct DaylightC;
 impl Component for DaylightC {
     const NAME: &'static str = "DAYLIGHT";
 }
+
+impl TimeZoneCComponent for DaylightC {}
 
 /// Alarm Component
 ///
@@ -1267,3 +1290,5 @@ pub struct AlarmC;
 impl Component for AlarmC {
     const NAME: &'static str = "VALARM";
 }
+
+impl ICalObjectComponent for AlarmC {}
