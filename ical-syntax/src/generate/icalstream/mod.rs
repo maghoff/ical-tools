@@ -1,20 +1,17 @@
-use super::*;
-
-pub mod components;
-pub mod properties;
 pub mod typed_writers;
 pub mod value_types;
 
 #[cfg(test)]
 mod test {
-    use components::ICalObject;
-    use properties::{ProdId, Version};
-    use typed_writers::ICalStreamWriter;
-
-    use super::*;
+    use crate::generate::Writer;
 
     #[test]
     fn writer() -> std::fmt::Result {
+        use crate::structure::icalstream::{
+            components::ICalObject,
+            properties::{ProdId, Version},
+        };
+
         let mut buf = String::new();
         let mut ics = Writer::new(&mut buf);
 
@@ -32,6 +29,8 @@ mod test {
 
     #[test]
     fn icalstream() -> std::fmt::Result {
+        use super::typed_writers::ICalStreamWriter;
+
         let mut buf = String::new();
         let mut ics = ICalStreamWriter::new(&mut buf);
 

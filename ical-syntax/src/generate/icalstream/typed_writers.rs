@@ -1,10 +1,11 @@
 use std::fmt::{Error, Write};
 
-use super::{
-    components::ICalObject,
-    properties::{ProdId, Version},
-    value_types::Text,
-    writer::{AsValueType, Component, ComponentWriter, Property, PropertyWriter, Writer},
+use crate::{
+    generate::{AsValueType, ComponentWriter, PropertyWriter, Writer},
+    structure::{
+        icalstream::{components::*, properties::*, value_types::*},
+        Component, Property,
+    },
 };
 
 /// Reference: [RFC5545 3.4](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.4)

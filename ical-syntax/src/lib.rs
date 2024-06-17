@@ -4,3 +4,4 @@
 //! IANA: <https://www.iana.org/assignments/icalendar/icalendar.xhtml>
 
 pub mod generate;
+pub mod structure;

@@ -1,6 +1,6 @@
 //! Calendar components, as defined in [RFC5545 3.6](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.6)
 
-use super::writer::Component;
+use crate::structure::Component;
 
 /// iCalendar Object
 ///

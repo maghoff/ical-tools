@@ -1,4 +1,4 @@
-use super::writer::Property;
+use crate::structure::Property;
 
 /// Property Name:  VERSION
 ///

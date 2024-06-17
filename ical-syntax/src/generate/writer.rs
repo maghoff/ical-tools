@@ -4,27 +4,9 @@ use std::{
     ops::{Deref, DerefMut},
 };
 
+use crate::structure::{Component, Param, ParamValue, ParamValueItem, Property, ValueType};
+
 use super::{content_line::ParamValueWriter, ContentLine, LineStream};
-
-pub trait Component {
-    const NAME: &'static str;
-}
-
-pub trait Property {
-    const NAME: &'static str;
-
-    type ValueType: ValueType;
-}
-
-pub trait Param {
-    const NAME: &'static str;
-
-    type ParamValueType: ParamValue;
-}
-
-pub trait ParamValueItem {
-    const QUOTED: bool;
-}
 
 pub trait AsParamValueItem<To: ParamValueItem> {
     fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result;
@@ -41,8 +23,6 @@ pub struct One<Item: ParamValueItem> {
 pub struct SetOf<Item: ParamValueItem> {
     _item: PhantomData<Item>,
 }
-
-pub trait ParamValue {}
 
 impl<Item: ParamValueItem> ParamValue for One<Item> {}
 
@@ -77,8 +57,6 @@ where
         Ok(())
     }
 }
-
-pub trait ValueType {}
 
 pub trait AsValueType<To: ValueType> {
     fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result;
