@@ -200,7 +200,9 @@ mod test {
     }
 
     struct TextValue;
-    impl ValueType for TextValue {}
+    impl ValueType for TextValue {
+        const NAME: &'static str = "TEXT";
+    }
 
     impl<T: Display> AsValueType<TextValue> for T {
         fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result {

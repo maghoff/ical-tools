@@ -13,7 +13,9 @@ pub trait Property {
     type ValueType: ValueType;
 }
 
-pub trait ValueType {}
+pub trait ValueType {
+    const NAME: &'static str;
+}
 
 pub trait Param {
     const NAME: &'static str;

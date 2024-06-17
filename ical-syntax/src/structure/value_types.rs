@@ -51,7 +51,9 @@ use crate::structure::ValueType;
 /// [RFC4648]: https://www.rfc-editor.org/rfc/rfc4648
 pub struct Binary;
 
-impl ValueType for Binary {}
+impl ValueType for Binary {
+    const NAME: &'static str = "BINARY";
+}
 
 /// Boolean
 ///
@@ -80,7 +82,9 @@ impl ValueType for Binary {}
 /// Reference: [RFC 5545 3.3.2](https://www.rfc-editor.org/rfc/rfc5545#section-3.3.2)
 pub struct Boolean;
 
-impl ValueType for Boolean {}
+impl ValueType for Boolean {
+    const NAME: &'static str = "BOOLEAN";
+}
 
 /// Calendar User Address
 ///
@@ -114,7 +118,9 @@ impl ValueType for Boolean {}
 /// [RFC2368]: https://www.rfc-editor.org/rfc/rfc2368
 pub struct CalAddress;
 
-impl ValueType for CalAddress {}
+impl ValueType for CalAddress {
+    const NAME: &'static str = "CAL-ADDRESS";
+}
 
 /// Date
 ///
@@ -157,7 +163,9 @@ impl ValueType for CalAddress {}
 /// [ISO.8601.2004]: https://www.rfc-editor.org/rfc/rfc5545#ref-ISO.8601.2004
 pub struct Date;
 
-impl ValueType for Date {}
+impl ValueType for Date {
+    const NAME: &'static str = "DATE";
+}
 
 /// Date-Time
 ///
@@ -289,7 +297,9 @@ impl ValueType for Date {}
 /// [ISO.8601.2004]: https://www.rfc-editor.org/rfc/rfc5545#ref-ISO.8601.2004
 pub struct DateTime;
 
-impl ValueType for DateTime {}
+impl ValueType for DateTime {
+    const NAME: &'static str = "DATE-TIME";
+}
 
 /// Duration
 ///
@@ -354,7 +364,9 @@ impl ValueType for DateTime {}
 /// [ISO.8601.2004]: https://www.rfc-editor.org/rfc/rfc5545#ref-ISO.8601.2004
 pub struct Duration;
 
-impl ValueType for Duration {}
+impl ValueType for Duration {
+    const NAME: &'static str = "DURATION";
+}
 
 /// Float
 ///
@@ -387,7 +399,9 @@ impl ValueType for Duration {}
 /// 3.3.7](https://www.rfc-editor.org/rfc/rfc5545#section-3.3.7)
 pub struct Float;
 
-impl ValueType for Float {}
+impl ValueType for Float {
+    const NAME: &'static str = "FLOAT";
+}
 
 /// Integer
 ///
@@ -423,7 +437,9 @@ impl ValueType for Float {}
 /// 3.3.8](https://www.rfc-editor.org/rfc/rfc5545#section-3.3.8)
 pub struct Integer;
 
-impl ValueType for Integer {}
+impl ValueType for Integer {
+    const NAME: &'static str = "INTEGER";
+}
 
 /// Period of Time
 ///
@@ -484,7 +500,9 @@ impl ValueType for Integer {}
 /// [ISO.8601.2004]: https://www.rfc-editor.org/rfc/rfc5545#ref-ISO.8601.2004
 pub struct PeriodOfTime;
 
-impl ValueType for PeriodOfTime {}
+impl ValueType for PeriodOfTime {
+    const NAME: &'static str = "PERIOD";
+}
 
 /// Recurrence Rule
 ///
@@ -814,7 +832,9 @@ impl ValueType for PeriodOfTime {}
 /// [ISO.8601.2004]: https://www.rfc-editor.org/rfc/rfc5545#ref-ISO.8601.2004
 pub struct RecurrenceRule;
 
-impl ValueType for RecurrenceRule {}
+impl ValueType for RecurrenceRule {
+    const NAME: &'static str = "RECUR";
+}
 
 /// Text
 ///
@@ -879,7 +899,9 @@ impl ValueType for RecurrenceRule {}
 /// 3.3.11](https://www.rfc-editor.org/rfc/rfc5545#section-3.3.11)
 pub struct Text;
 
-impl ValueType for Text {}
+impl ValueType for Text {
+    const NAME: &'static str = "TEXT";
+}
 
 /// Time
 ///
@@ -986,7 +1008,9 @@ impl ValueType for Text {}
 /// 3.3.12](https://www.rfc-editor.org/rfc/rfc5545#section-3.3.12)
 pub struct Time;
 
-impl ValueType for Time {}
+impl ValueType for Time {
+    const NAME: &'static str = "TIME";
+}
 
 /// URI
 ///
@@ -1026,7 +1050,9 @@ impl ValueType for Time {}
 /// [RFC3986]: https://www.rfc-editor.org/rfc/rfc3986
 pub struct Uri;
 
-impl ValueType for Uri {}
+impl ValueType for Uri {
+    const NAME: &'static str = "URI";
+}
 
 /// UTC Offset
 ///
@@ -1067,4 +1093,6 @@ impl ValueType for Uri {}
 /// 3.3.14](https://www.rfc-editor.org/rfc/rfc5545#section-3.3.14)
 pub struct UtcOffset;
 
-impl ValueType for UtcOffset {}
+impl ValueType for UtcOffset {
+    const NAME: &'static str = "UTC-OFFSET";
+}
