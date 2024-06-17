@@ -401,6 +401,9 @@ impl Component for TodoC {
 
 impl ICalObjectComponent for TodoC {}
 
+/// Property that belongs to a [TodoC].
+pub trait TodoCProperty: Property {}
+
 /// Journal Component
 ///
 /// Component Name:  VJOURNAL
@@ -494,6 +497,9 @@ impl Component for JournalC {
 }
 
 impl ICalObjectComponent for JournalC {}
+
+/// Property that belongs to a [JournalC].
+pub trait JournalCProperty: Property {}
 
 /// Free/Busy Component
 ///
@@ -639,6 +645,9 @@ impl Component for FreeBusyC {
 }
 
 impl ICalObjectComponent for FreeBusyC {}
+
+/// Property that belongs to a [FreeBusyC].
+pub trait FreeBusyCProperty: Property {}
 
 /// Time Zone Component
 ///
@@ -1039,6 +1048,9 @@ impl Component for TimeZoneC {
 
 impl ICalObjectComponent for TimeZoneC {}
 
+/// Property that belongs to a [TimeZoneC].
+pub trait TimeZoneCProperty: Property {}
+
 /// A subcomponent of [TimeZoneC].
 pub trait TimeZoneCComponent {}
 
@@ -1050,6 +1062,9 @@ impl Component for StandardC {
 
 impl TimeZoneCComponent for StandardC {}
 
+/// Property that belongs to a [StandardC].
+pub trait StandardCProperty: Property {}
+
 /// A subcomponent of [TimeZoneC].
 pub struct DaylightC;
 impl Component for DaylightC {
@@ -1057,6 +1072,9 @@ impl Component for DaylightC {
 }
 
 impl TimeZoneCComponent for DaylightC {}
+
+/// Property that belongs to a [DaylightC].
+pub trait DaylightCProperty: Property {}
 
 /// Alarm Component
 ///
@@ -1292,3 +1310,6 @@ impl Component for AlarmC {
 }
 
 impl ICalObjectComponent for AlarmC {}
+
+/// Property that belongs to an [AlarmC].
+pub trait AlarmCProperty: Property {}
