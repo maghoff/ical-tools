@@ -33,8 +33,7 @@ impl<T: Borrow<bool>> AsValueType<Boolean> for T {
 
 impl<T: std::fmt::Display> AsValueType<Text> for T {
     fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result {
-        // TODO Implement escaping according to grammar above
-        write!(w, "{}", self)
+        write!(crate::generate::text_writer::TextWriter::new(w), "{}", self)
     }
 }
 
