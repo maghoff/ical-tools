@@ -1,5 +1,6 @@
 use std::marker::PhantomData;
 
+pub mod composite_value_types;
 pub mod icalstream;
 pub mod value_types;
 

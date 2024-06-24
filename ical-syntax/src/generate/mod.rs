@@ -1,3 +1,4 @@
+pub mod composite_value_types;
 mod content_line;
 mod folding_writer;
 pub mod icalstream;
