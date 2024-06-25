@@ -62,7 +62,7 @@ pub struct DateTimeStamp;
 impl Property for DateTimeStamp {
     const NAME: &'static str = "DTSTAMP";
 
-    type ValueType = DateTime;
+    type CompositeValueType = DateTime;
 }
 
 impl EventCProperty for DateTimeStamp {}

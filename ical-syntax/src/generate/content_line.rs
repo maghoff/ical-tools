@@ -1,5 +1,7 @@
 use std::fmt::Display;
 
+use crate::generate::text_writer::TextWriter;
+
 use super::FoldingWriter;
 use super::NameWriter;
 use super::ParamtextWriter;
@@ -102,7 +104,7 @@ impl<W: Write> ContentLine<W> {
         self.param_value_quoted(value)
     }
 
-    pub fn value_writer(&mut self) -> Result<&'_ mut FoldingWriter<W>, std::fmt::Error> {
+    fn value_writer(&mut self) -> Result<&'_ mut FoldingWriter<W>, std::fmt::Error> {
         assert!(self.state == State::AfterName || self.state == State::AfterParamValue);
         self.state = State::Value;
 
@@ -111,9 +113,15 @@ impl<W: Write> ContentLine<W> {
         Ok(&mut self.inner)
     }
 
+    pub fn value_tuple_writer<'x, 'y: 'x>(
+        &'y mut self,
+    ) -> Result<ValueTupleWriter<'x, W>, std::fmt::Error> {
+        Ok(ValueTupleWriter::new(self.value_writer()?))
+    }
+
     pub fn value(&mut self, fmt: impl Display) -> std::fmt::Result {
-        let mut v = self.value_writer()?;
-        write!(&mut v, "{}", fmt)
+        let mut tw = self.value_tuple_writer()?;
+        write!(&mut tw.next_value_writer()?, "{}", fmt)
     }
 
     pub fn eol(self) -> std::fmt::Result {
@@ -135,6 +143,32 @@ impl<W: Write> ParamValueWriter<W> for ContentLine<W> {
     ) -> Result<QuotedStringWriter<&'_ mut FoldingWriter<W>>, std::fmt::Error> {
         self.goto_param_value_state()?;
         QuotedStringWriter::new(&mut self.inner)
+    }
+}
+
+pub struct ValueTupleWriter<'a, W: Write> {
+    inner: &'a mut FoldingWriter<W>,
+    first_value: bool,
+}
+
+impl<'a, W: Write> ValueTupleWriter<'a, W> {
+    pub fn new(inner: &'a mut FoldingWriter<W>) -> Self {
+        Self {
+            inner,
+            first_value: true,
+        }
+    }
+
+    pub fn next_value_writer<'x, 'y: 'x>(
+        &'y mut self,
+    ) -> Result<TextWriter<&'x mut FoldingWriter<W>>, std::fmt::Error> {
+        if self.first_value {
+            self.first_value = false;
+        } else {
+            self.inner.write_char(';')?;
+        }
+
+        Ok(TextWriter::new(&mut self.inner))
     }
 }
 

@@ -1,7 +1,10 @@
 use std::fmt::{Error, Write};
 
 use crate::{
-    generate::{AsValueType, ComponentWriter, PropertyWriter, Writer},
+    generate::{
+        composite_value_types::AsCompositeValueType, value_types::AsValueType, ComponentWriter,
+        PropertyWriter, Writer,
+    },
     structure::{
         icalstream::{components::*, properties::calendar::*},
         value_types::*,
@@ -61,7 +64,7 @@ impl<'a, W: Write> ICalObjectWriter<'a, W> {
     pub fn simple_property<P: ICalObjectProperty>(
         &mut self,
         property: P,
-        value: impl crate::generate::writer::AsValueType<P::ValueType>,
+        value: impl AsCompositeValueType<P::CompositeValueType>,
     ) -> std::fmt::Result {
         self.inner.simple_property(property, value)
     }

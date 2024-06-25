@@ -6,7 +6,10 @@ use std::{
 
 use crate::structure::*;
 
-use super::{content_line::ParamValueWriter, ContentLine, LineStream};
+use super::{
+    composite_value_types::AsCompositeValueType, content_line::ParamValueWriter, ContentLine,
+    LineStream,
+};
 
 pub trait AsParamValueItem<To: ParamValueItem> {
     fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result;
@@ -46,10 +49,6 @@ where
     }
 }
 
-pub trait AsValueType<To: ValueType> {
-    fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result;
-}
-
 pub struct Writer<W: Write> {
     inner: LineStream<W>,
 }
@@ -78,7 +77,7 @@ impl<W: Write> Writer<W> {
     pub fn simple_property<P: Property>(
         &mut self,
         property: P,
-        value: impl AsValueType<P::ValueType>,
+        value: impl AsCompositeValueType<P::CompositeValueType>,
     ) -> std::fmt::Result {
         let mut p = self.property(property)?;
         p.value(value)?;
@@ -165,12 +164,16 @@ impl<'a, W: Write, P: Property> PropertyWriter<'a, W, P> {
         value.write_to(&mut self.content_line)
     }
 
-    pub fn value(&mut self, value: impl AsValueType<P::ValueType>) -> std::fmt::Result {
-        let w = self.content_line.value_writer()?;
-        value.fmt(w)
+    pub fn value(
+        &mut self,
+        value: impl AsCompositeValueType<P::CompositeValueType>,
+    ) -> std::fmt::Result {
+        assert!(!self.is_closed);
+        value.write_to(&mut self.content_line)
     }
 
     pub fn end(mut self) -> std::fmt::Result {
+        // TODO Make `end` implicit in `fn value`?
         self.is_closed = true;
         self.content_line.eol()
     }
@@ -188,7 +191,7 @@ impl<'a, W: Write, P: Property> PropertyWriter<'a, W, P> {
 mod test {
     use std::{borrow::Borrow, fmt::Display};
 
-    use crate::generate::LineStream;
+    use crate::generate::{value_types::AsValueType, LineStream};
 
     use super::*;
 
@@ -196,7 +199,7 @@ mod test {
     impl Property for TestProp {
         const NAME: &'static str = "TEST";
 
-        type ValueType = TextValue;
+        type CompositeValueType = TextValue;
     }
 
     struct TextValue;
@@ -308,6 +311,41 @@ mod test {
         prop.end()?;
 
         assert_eq!(&buf, "TEST;C=CUSTOM;C=CUSTOM:brille\r\n");
+
+        Ok(())
+    }
+
+    #[test]
+    fn value_escaping() -> std::fmt::Result {
+        let mut buf = String::new();
+        let mut line_stream = LineStream::new(&mut buf);
+        let mut prop = PropertyWriter::<_, TestProp>::new(&mut line_stream)?;
+
+        prop.value(";,\n")?;
+        prop.end()?;
+
+        assert_eq!(&buf, "TEST:\\;\\,\\n\r\n");
+
+        Ok(())
+    }
+
+    #[test]
+    fn value_tuple() -> std::fmt::Result {
+        struct TupleTestProp;
+        impl Property for TupleTestProp {
+            const NAME: &'static str = "TEST";
+
+            type CompositeValueType = (TextValue, TextValue);
+        }
+
+        let mut buf = String::new();
+        let mut line_stream = LineStream::new(&mut buf);
+        let mut prop = PropertyWriter::<_, TupleTestProp>::new(&mut line_stream)?;
+
+        prop.value(("test", "value"))?;
+        prop.end()?;
+
+        assert_eq!(&buf, "TEST:test;value\r\n");
 
         Ok(())
     }

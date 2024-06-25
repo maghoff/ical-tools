@@ -16,8 +16,10 @@ pub trait Component {
 pub trait Property {
     const NAME: &'static str;
 
-    type ValueType: ValueType;
+    type CompositeValueType: CompositeValueType;
 }
+
+pub trait CompositeValueType {}
 
 pub trait ValueType {
     const NAME: &'static str;

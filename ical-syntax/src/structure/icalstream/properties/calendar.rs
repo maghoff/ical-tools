@@ -50,7 +50,7 @@ pub struct Version;
 impl Property for Version {
     const NAME: &'static str = "VERSION";
 
-    type ValueType = Text;
+    type CompositeValueType = Text;
 }
 
 impl ICalObjectProperty for Version {}
@@ -102,7 +102,7 @@ pub struct ProdId;
 impl Property for ProdId {
     const NAME: &'static str = "PRODID";
 
-    type ValueType = Text;
+    type CompositeValueType = Text;
 }
 
 impl ICalObjectProperty for ProdId {}

@@ -4,6 +4,10 @@ use std::fmt::Write;
 ///
 /// This is simple backslash-escaping of the characters `\`, `\n`, `;` and `,`.
 ///
+/// No other value types may contain any of these characters, which have
+/// syntactic significance. Hence, this writer is applicable to any value type,
+/// even if it isn't neccessary for types other than TEXT.
+///
 /// Reference: [RFC 5545
 /// 3.3.11](https://www.rfc-editor.org/rfc/rfc5545#section-3.3.11)
 pub struct TextWriter<W: Write> {

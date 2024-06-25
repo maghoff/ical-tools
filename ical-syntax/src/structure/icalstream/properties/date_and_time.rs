@@ -80,7 +80,7 @@ impl Property for DateTimeStart {
 
     // TODO: The value type is really a choice of Date or DateTime, with
     // DateTime as default
-    type ValueType = DateTime;
+    type CompositeValueType = DateTime;
 }
 
 impl EventCProperty for DateTimeStart {}
@@ -147,7 +147,7 @@ pub struct TimeTransparency;
 impl Property for TimeTransparency {
     const NAME: &'static str = "TRANSP";
 
-    type ValueType = Text;
+    type CompositeValueType = Text;
 }
 
 impl EventCProperty for TimeTransparency {}

@@ -1,6 +1,10 @@
 use std::{borrow::Borrow, fmt::Write};
 
-use crate::{generate::AsValueType, structure::value_types::*};
+use crate::structure::{value_types::*, ValueType};
+
+pub trait AsValueType<To: ValueType> {
+    fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result;
+}
 
 // TODO impl<T: AsRef<[u8]>> AsValueType<Binary> for T {
 
@@ -33,7 +37,7 @@ impl<T: Borrow<bool>> AsValueType<Boolean> for T {
 
 impl<T: std::fmt::Display> AsValueType<Text> for T {
     fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result {
-        write!(crate::generate::text_writer::TextWriter::new(w), "{}", self)
+        write!(w, "{}", self)
     }
 }
 
@@ -42,3 +46,28 @@ impl<T: std::fmt::Display> AsValueType<Text> for T {
 // TODO impl AsValueType<Uri>
 
 // TODO impl AsValueType<UtcOffset>
+
+#[cfg(test)]
+mod test {
+    use crate::structure::ValueType;
+
+    use super::*;
+
+    fn test_case<V: ValueType>(v: impl AsValueType<V>, expected: &str) {
+        let mut buf = String::new();
+        AsValueType::<V>::fmt(&v, &mut buf).unwrap();
+        assert_eq!(&buf, expected);
+    }
+
+    #[test]
+    fn boolean() {
+        test_case::<Boolean>(true, "TRUE");
+        test_case::<Boolean>(false, "FALSE");
+    }
+
+    #[test]
+    fn text() {
+        test_case::<Text>("simple text", "simple text");
+        test_case::<Text>("escaping is elsewhere;,\n", "escaping is elsewhere;,\n");
+    }
+}

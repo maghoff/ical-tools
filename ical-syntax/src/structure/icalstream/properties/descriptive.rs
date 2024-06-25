@@ -61,7 +61,7 @@ pub struct Summary;
 impl Property for Summary {
     const NAME: &'static str = "SUMMARY";
 
-    type ValueType = Text;
+    type CompositeValueType = Text;
 }
 
 impl EventCProperty for Summary {}

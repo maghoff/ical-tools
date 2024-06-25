@@ -80,7 +80,7 @@ pub struct Uid;
 impl Property for Uid {
     const NAME: &'static str = "UID";
 
-    type ValueType = Text;
+    type CompositeValueType = Text;
 }
 
 impl EventCProperty for Uid {}
