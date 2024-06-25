@@ -119,6 +119,12 @@ impl<W: Write> ContentLine<W> {
         Ok(ValueTupleWriter::new(self.value_writer()?))
     }
 
+    pub fn value_list_writer<'x, 'y: 'x>(
+        &'y mut self,
+    ) -> Result<ValueListWriter<'x, W>, std::fmt::Error> {
+        Ok(ValueListWriter::new(self.value_writer()?))
+    }
+
     pub fn value(&mut self, fmt: impl Display) -> std::fmt::Result {
         let mut tw = self.value_tuple_writer()?;
         write!(&mut tw.next_value_writer()?, "{}", fmt)
@@ -166,6 +172,32 @@ impl<'a, W: Write> ValueTupleWriter<'a, W> {
             self.first_value = false;
         } else {
             self.inner.write_char(';')?;
+        }
+
+        Ok(TextWriter::new(&mut self.inner))
+    }
+}
+
+pub struct ValueListWriter<'a, W: Write> {
+    inner: &'a mut FoldingWriter<W>,
+    first_value: bool,
+}
+
+impl<'a, W: Write> ValueListWriter<'a, W> {
+    pub fn new(inner: &'a mut FoldingWriter<W>) -> Self {
+        Self {
+            inner,
+            first_value: true,
+        }
+    }
+
+    pub fn next_value_writer<'x, 'y: 'x>(
+        &'y mut self,
+    ) -> Result<TextWriter<&'x mut FoldingWriter<W>>, std::fmt::Error> {
+        if self.first_value {
+            self.first_value = false;
+        } else {
+            self.inner.write_char(',')?;
         }
 
         Ok(TextWriter::new(&mut self.inner))

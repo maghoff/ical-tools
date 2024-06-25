@@ -169,7 +169,7 @@ impl<'a, W: Write, P: Property> PropertyWriter<'a, W, P> {
         value: impl AsCompositeValueType<P::CompositeValueType>,
     ) -> std::fmt::Result {
         assert!(!self.is_closed);
-        value.write_to(&mut self.content_line)
+        value.write_into(&mut self.content_line)
     }
 
     pub fn end(mut self) -> std::fmt::Result {
@@ -190,6 +190,8 @@ impl<'a, W: Write, P: Property> PropertyWriter<'a, W, P> {
 #[cfg(test)]
 mod test {
     use std::{borrow::Borrow, fmt::Display};
+
+    use composite_value_types::List;
 
     use crate::generate::{value_types::AsValueType, LineStream};
 
@@ -346,6 +348,38 @@ mod test {
         prop.end()?;
 
         assert_eq!(&buf, "TEST:test;value\r\n");
+
+        Ok(())
+    }
+
+    #[test]
+    fn value_list() -> std::fmt::Result {
+        struct ListTestProp;
+        impl Property for ListTestProp {
+            const NAME: &'static str = "TEST";
+
+            type CompositeValueType = List<TextValue>;
+        }
+
+        let mut buf = String::new();
+        let mut line_stream = LineStream::new(&mut buf);
+
+        let mut prop = PropertyWriter::<_, ListTestProp>::new(&mut line_stream)?;
+        prop.value(&["test", "value"])?;
+        prop.end()?;
+
+        let mut prop = PropertyWriter::<_, ListTestProp>::new(&mut line_stream)?;
+        prop.value(&["test", "value"] as &[_])?;
+        prop.end()?;
+
+        let mut prop = PropertyWriter::<_, ListTestProp>::new(&mut line_stream)?;
+        prop.value(["test", "value"])?;
+        prop.end()?;
+
+        assert_eq!(
+            &buf,
+            "TEST:test,value\r\nTEST:test,value\r\nTEST:test,value\r\n"
+        );
 
         Ok(())
     }
