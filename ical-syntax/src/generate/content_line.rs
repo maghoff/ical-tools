@@ -10,7 +10,7 @@ use super::QuotedStringWriter;
 use std::fmt::Write;
 
 #[derive(PartialEq, Eq, Debug)]
-pub(crate) enum State {
+enum State {
     Initial,
     AfterName,
     AfterParamName,
@@ -19,8 +19,8 @@ pub(crate) enum State {
 }
 
 pub struct ContentLine<W: Write> {
-    pub(crate) inner: FoldingWriter<W>,
-    pub(crate) state: State,
+    inner: FoldingWriter<W>,
+    state: State,
 }
 
 pub trait ParamValueWriter<W: Write> {

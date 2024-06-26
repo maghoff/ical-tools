@@ -4,7 +4,7 @@ use std::fmt::Write;
 use super::ContentLine;
 
 pub struct LineStream<W: Write> {
-    pub(crate) inner: W,
+    inner: W,
 }
 
 impl<W: Write> LineStream<W> {
@@ -25,7 +25,7 @@ impl<W: Write> LineStream<W> {
 }
 
 #[cfg(test)]
-pub(crate) mod test {
+mod test {
     use super::*;
 
     #[test]
