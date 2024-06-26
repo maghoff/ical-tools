@@ -7,8 +7,9 @@ use std::{
 use crate::structure::*;
 
 use super::{
-    composite_value_types::AsCompositeValueType, content_line::ParamValueWriter, ContentLine,
-    LineStream,
+    composite_value_types::AsCompositeValueType,
+    content_line::{ParamValueWriter, ValueListWriter, ValueTupleWriter},
+    ContentLine, LineStream,
 };
 
 pub trait AsParamValueItem<To: ParamValueItem> {
@@ -169,7 +170,7 @@ impl<'a, W: Write, P: Property> PropertyWriter<'a, W, P> {
         value: impl AsCompositeValueType<P::CompositeValueType>,
     ) -> std::fmt::Result {
         assert!(!self.is_closed);
-        value.write_into(&mut self.content_line)
+        value.write_into(PropertyValueWriter::new(&mut self.content_line))
     }
 
     pub fn end(mut self) -> std::fmt::Result {
@@ -186,6 +187,37 @@ impl<'a, W: Write, P: Property> PropertyWriter<'a, W, P> {
 //         assert!(self.is_closed, "Property::end() must be called before drop");
 //     }
 // }
+
+pub struct PropertyValueWriter<'a, 'b: 'a, W: Write> {
+    inner: &'a mut ContentLine<&'b mut W>,
+}
+
+impl<'a, 'b: 'a, W: Write> PropertyValueWriter<'a, 'b, W> {
+    fn new(inner: &'a mut ContentLine<&'b mut W>) -> Self {
+        Self { inner }
+    }
+
+    pub fn param<'x, 'y: 'x, PP: Param>(
+        &'y mut self,
+        _param: PP,
+        value: impl AsParamValue<PP::ParamValueType>,
+    ) -> std::fmt::Result {
+        self.inner.param_name(PP::NAME)?;
+        value.write_to(self.inner)
+    }
+
+    pub fn value_tuple_writer<'x, 'y: 'x>(
+        &'y mut self,
+    ) -> Result<ValueTupleWriter<'x, &'b mut W>, std::fmt::Error> {
+        self.inner.value_tuple_writer()
+    }
+
+    pub fn value_list_writer<'x, 'y: 'x>(
+        &'y mut self,
+    ) -> Result<ValueListWriter<'x, &'b mut W>, std::fmt::Error> {
+        self.inner.value_list_writer()
+    }
+}
 
 #[cfg(test)]
 mod test {
@@ -221,6 +253,17 @@ mod test {
     }
 
     impl<T: Display> AsParamValueItem<TextParamItem> for T {
+        fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result {
+            write!(w, "{}", self)
+        }
+    }
+
+    struct BarewordParamItem;
+    impl ParamValueItem for BarewordParamItem {
+        const QUOTED: bool = false;
+    }
+
+    impl<T: Display> AsParamValueItem<BarewordParamItem> for T {
         fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result {
             write!(w, "{}", self)
         }
@@ -412,6 +455,14 @@ mod test {
             Unit(T1),
         }
 
+        struct Value;
+
+        impl Param for Value {
+            const NAME: &'static str = "VALUE";
+
+            type ParamValueType = One<BarewordParamItem>;
+        }
+
         // The following impls are amenable to code generation:
 
         impl<T0: AsValueType<TextValue>> ChoiceValue<T0> {
@@ -429,14 +480,15 @@ mod test {
         impl<T0: AsValueType<TextValue>, T1: AsValueType<UnitValue>>
             AsCompositeValueType<Any2<TextValue, UnitValue>> for ChoiceValue<T0, T1>
         {
-            fn write_into<W: Write>(self, content_line: &mut ContentLine<W>) -> std::fmt::Result {
+            fn write_into<W: Write>(
+                self,
+                mut prop_value_writer: PropertyValueWriter<W>,
+            ) -> std::fmt::Result {
                 match self {
-                    ChoiceValue::Text(x) => x.write_into(content_line),
+                    ChoiceValue::Text(x) => x.write_into(prop_value_writer),
                     ChoiceValue::Unit(x) => {
-                        // TODO Shoot! It's maybe not ContentLine I want here after
-                        // all. I want to be able to write params with all the frills!
-                        content_line.param_unquoted("VALUE", UnitValue::NAME)?;
-                        x.write_into(content_line)
+                        prop_value_writer.param(Value, UnitValue::NAME)?;
+                        x.write_into(prop_value_writer)
                     }
                 }
             }
