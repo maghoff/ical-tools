@@ -191,7 +191,7 @@ impl<'a, W: Write, P: Property> PropertyWriter<'a, W, P> {
 mod test {
     use std::{borrow::Borrow, fmt::Display};
 
-    use composite_value_types::List;
+    use composite_value_types::{Any2, List};
 
     use crate::generate::{value_types::AsValueType, LineStream};
 
@@ -380,6 +380,80 @@ mod test {
             &buf,
             "TEST:test,value\r\nTEST:test,value\r\nTEST:test,value\r\n"
         );
+
+        Ok(())
+    }
+
+    #[test]
+    fn value_choice() -> std::fmt::Result {
+        struct UnitValue;
+        impl ValueType for UnitValue {
+            const NAME: &'static str = "UNIT";
+        }
+
+        impl AsValueType<UnitValue> for () {
+            fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result {
+                write!(w, "()")
+            }
+        }
+
+        struct ChoiceTestProp;
+        impl Property for ChoiceTestProp {
+            const NAME: &'static str = "TEST";
+
+            type CompositeValueType = Any2<TextValue, UnitValue>;
+        }
+
+        pub enum ChoiceValue<
+            T0: AsValueType<TextValue> = &'static str,
+            T1: AsValueType<UnitValue> = (),
+        > {
+            Text(T0),
+            Unit(T1),
+        }
+
+        // The following impls are amenable to code generation:
+
+        impl<T0: AsValueType<TextValue>> ChoiceValue<T0> {
+            pub fn text(x: T0) -> Self {
+                Self::Text(x)
+            }
+        }
+
+        impl<T1: AsValueType<UnitValue>> ChoiceValue<&'static str, T1> {
+            pub fn unit(x: T1) -> Self {
+                Self::Unit(x)
+            }
+        }
+
+        impl<T0: AsValueType<TextValue>, T1: AsValueType<UnitValue>>
+            AsCompositeValueType<Any2<TextValue, UnitValue>> for ChoiceValue<T0, T1>
+        {
+            fn write_into<W: Write>(self, content_line: &mut ContentLine<W>) -> std::fmt::Result {
+                match self {
+                    ChoiceValue::Text(x) => x.write_into(content_line),
+                    ChoiceValue::Unit(x) => {
+                        // TODO Shoot! It's maybe not ContentLine I want here after
+                        // all. I want to be able to write params with all the frills!
+                        content_line.param_unquoted("VALUE", UnitValue::NAME)?;
+                        x.write_into(content_line)
+                    }
+                }
+            }
+        }
+
+        let mut buf = String::new();
+        let mut line_stream = LineStream::new(&mut buf);
+
+        let mut prop = PropertyWriter::<_, ChoiceTestProp>::new(&mut line_stream)?;
+        prop.value(ChoiceValue::text("test text"))?;
+        prop.end()?;
+
+        let mut prop = PropertyWriter::<_, ChoiceTestProp>::new(&mut line_stream)?;
+        prop.value(ChoiceValue::unit(()))?;
+        prop.end()?;
+
+        assert_eq!(&buf, "TEST:test text\r\nTEST;VALUE=UNIT:()\r\n");
 
         Ok(())
     }

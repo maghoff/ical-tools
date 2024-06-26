@@ -1,10 +1,11 @@
 //! [RFC 5545 3.8.2: Date and Time Component Properties](https://www.rfc-editor.org/rfc/rfc5545#section-3.8.2)
 
 use crate::structure::{
+    composite_value_types::Any2,
     icalstream::components::{
         DaylightCProperty, EventCProperty, FreeBusyCProperty, StandardCProperty, TodoCProperty,
     },
-    value_types::{DateTime, Text},
+    value_types::{Date, DateTime, Text},
     Property,
 };
 
@@ -78,9 +79,7 @@ pub struct DateTimeStart;
 impl Property for DateTimeStart {
     const NAME: &'static str = "DTSTART";
 
-    // TODO: The value type is really a choice of Date or DateTime, with
-    // DateTime as default
-    type CompositeValueType = DateTime;
+    type CompositeValueType = Any2<DateTime, Date>;
 }
 
 impl EventCProperty for DateTimeStart {}
