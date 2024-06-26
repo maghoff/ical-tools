@@ -50,6 +50,7 @@ pub struct Version;
 impl Property for Version {
     const NAME: &'static str = "VERSION";
 
+    // TODO: Model the maxver / (minver ";" maxver) grammar.
     type CompositeValueType = Text;
 }
 
