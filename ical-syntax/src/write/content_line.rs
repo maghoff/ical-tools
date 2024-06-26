@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::generate::text_writer::TextWriter;
+use crate::write::text_writer::TextWriter;
 
 use super::FoldingWriter;
 use super::NameWriter;

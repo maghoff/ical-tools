@@ -1,13 +1,13 @@
 use std::fmt::{Error, Write};
 
 use crate::{
-    generate::{
-        composite_value_types::AsCompositeValueType, value_types::AsValueType, ComponentWriter,
-        PropertyWriter, Writer,
-    },
     structure::{
         icalstream::{components::*, properties::calendar::*},
         value_types::*,
+    },
+    write::{
+        composite_value_types::AsCompositeValueType, value_types::AsValueType, ComponentWriter,
+        PropertyWriter, Writer,
     },
 };
 

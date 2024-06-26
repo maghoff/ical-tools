@@ -225,7 +225,7 @@ mod test {
 
     use composite_value_types::{Any2, List};
 
-    use crate::generate::{value_types::AsValueType, LineStream};
+    use crate::write::{value_types::AsValueType, LineStream};
 
     use super::*;
 
