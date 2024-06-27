@@ -1,6 +1,4 @@
-use crate::structure::{One, Param};
-
-use super::parameter_value_items::Name;
+use crate::structure::{parameter_value_items::Name, One, Param};
 
 /// Value Data Types
 ///

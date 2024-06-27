@@ -2,6 +2,7 @@ use std::marker::PhantomData;
 
 pub mod composite_value_types;
 pub mod icalstream;
+pub mod parameter_value_items;
 pub mod value_types;
 
 pub trait Component {

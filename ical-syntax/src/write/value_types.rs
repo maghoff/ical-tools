@@ -1,6 +1,10 @@
 use std::{borrow::Borrow, fmt::Write};
 
-use crate::structure::{value_types::*, ValueType};
+use crate::structure::{
+    composite_value_types::Any2, icalstream::parameters::Value, value_types::*, ValueType,
+};
+
+use super::{composite_value_types::AsCompositeValueType, PropertyValueWriter};
 
 pub trait AsValueType<To: ValueType> {
     fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result;
@@ -25,16 +29,30 @@ impl<T: Borrow<bool>> AsValueType<Boolean> for T {
 // TODO: Find a relevant type for impling AsValueType<CalAddress>
 // Maybe EmailAddress from https://crates.io/crates/email_address ?
 
-// TODO impl AsValueType<Date> for... some chrono type, I suppose?
+// See the chrono04-module for AsValueType<DateTime> and AsValueType<Date>
 
-// TODO impl AsValueType<DateTime> for some chrono type, I guess?
-//
-// Form #3, datetime with timezone reference, requires setting the TZID
-// parameter.
-//
-// Something like `enum DateTime { Floating(chrono::NaiveDateTime), Utc(chrono::DateTime<Utc>) }`
-// Form #3 would require using the Floating representation and setting and handling
-// TZID entirely separately.
+/// A choice between the [DATETIME][DateTime] and [DATE][Date] value types.
+pub enum DateTimeOrDate<T0: AsValueType<DateTime>, T1: AsValueType<Date>> {
+    DateTime(T0),
+    Date(T1),
+}
+
+impl<T0: AsValueType<DateTime>, T1: AsValueType<Date>> AsCompositeValueType<Any2<DateTime, Date>>
+    for DateTimeOrDate<T0, T1>
+{
+    fn write_into<W: std::fmt::Write>(
+        self,
+        mut prop_value_writer: PropertyValueWriter<W>,
+    ) -> std::fmt::Result {
+        match self {
+            DateTimeOrDate::DateTime(x) => x.write_into(prop_value_writer),
+            DateTimeOrDate::Date(x) => {
+                prop_value_writer.param(Value, Date::NAME)?;
+                x.write_into(prop_value_writer)
+            }
+        }
+    }
+}
 
 // TODO impl AsValueType<Duration> for a signed duration type in chrono?
 
