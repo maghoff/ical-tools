@@ -56,7 +56,10 @@ mod test {
                     relationship::Uid,
                 },
             },
-            write::chrono04::{DateTimeForm, DateTimeOrDate},
+            write::{
+                chrono04::{DateTimeForm, DateTimeOrDate},
+                value_types::TimeTransparency as TimeTransparencyValue,
+            },
         };
 
         let dtstamp = chrono::DateTime::parse_from_rfc3339("2024-06-26T12:00:00Z")
@@ -75,7 +78,7 @@ mod test {
         ev.simple_property(Uid, "unique identifier")?;
         ev.simple_property(DateTimeStart, DateTimeOrDate::from(dtstamp.date_naive()))?;
         ev.simple_property(Summary, "summary text")?;
-        ev.simple_property(TimeTransparency, "TRANSPARENT")?;
+        ev.simple_property(TimeTransparency, TimeTransparencyValue::Transparent)?;
         ev.end()?;
 
         ico.end()?;

@@ -71,6 +71,28 @@ impl<T: std::fmt::Display> AsValueType<Text> for T {
     }
 }
 
+/// Helper type for the TRANSP property.
+#[derive(PartialEq, Eq, Debug)]
+pub enum TimeTransparency {
+    Opaque,
+    Transparent,
+}
+
+impl Default for TimeTransparency {
+    fn default() -> Self {
+        Self::Opaque
+    }
+}
+
+impl std::fmt::Display for TimeTransparency {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TimeTransparency::Opaque => write!(f, "OPAQUE"),
+            TimeTransparency::Transparent => write!(f, "TRANSPARENT"),
+        }
+    }
+}
+
 // TODO impl AsValueType<Time>
 
 // TODO impl AsValueType<Uri>
