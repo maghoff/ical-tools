@@ -120,13 +120,10 @@ impl<'a, W: Write> EventWriter<'a, W> {
         self.inner.simple_property(property, value)
     }
 
-    #[cfg(feature = "chrono04")]
-    pub fn dtstamp(&mut self, dtstamp: chrono::DateTime<chrono::Utc>) -> std::fmt::Result {
-        use crate::write::chrono04::DateTimeForm;
-
+    pub fn dtstamp(&mut self, dtstamp: impl AsCompositeValueType<DateTimeUtc>) -> std::fmt::Result {
         self.simple_property(
             crate::structure::icalstream::properties::change_management::DateTimeStamp,
-            DateTimeForm::from(dtstamp),
+            dtstamp,
         )
     }
 

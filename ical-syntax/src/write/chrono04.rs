@@ -2,7 +2,7 @@
 
 use chrono::{Datelike, Timelike, Utc};
 
-use crate::structure::value_types::{Date, DateTime};
+use crate::structure::value_types::{Date, DateTime, DateTimeUtc};
 
 use super::value_types::AsValueType;
 
@@ -92,5 +92,20 @@ impl From<chrono::DateTime<Utc>> for DateTimeOrDate {
 impl From<chrono::NaiveDate> for DateTimeOrDate {
     fn from(value: chrono::NaiveDate) -> Self {
         Self::Date(value)
+    }
+}
+
+impl AsValueType<DateTimeUtc> for chrono::DateTime<Utc> {
+    fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
+        write!(
+            w,
+            "{:04}{:02}{:02}T{:02}{:02}{:02}Z",
+            self.year(),
+            self.month(),
+            self.day(),
+            self.hour(),
+            self.minute(),
+            self.second()
+        )
     }
 }

@@ -2,7 +2,7 @@
 
 use crate::structure::{
     icalstream::components::{EventCProperty, FreeBusyCProperty, JournalCProperty, TodoCProperty},
-    value_types::DateTime,
+    value_types::DateTimeUtc,
     Property,
 };
 
@@ -62,7 +62,7 @@ pub struct DateTimeStamp;
 impl Property for DateTimeStamp {
     const NAME: &'static str = "DTSTAMP";
 
-    type CompositeValueType = DateTime;
+    type CompositeValueType = DateTimeUtc;
 }
 
 impl EventCProperty for DateTimeStamp {}

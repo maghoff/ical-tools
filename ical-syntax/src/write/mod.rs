@@ -58,8 +58,7 @@ mod test {
                 },
             },
             write::{
-                chrono04::{DateTimeForm, DateTimeOrDate},
-                value_types::TimeTransparency as TimeTransparencyValue,
+                chrono04::DateTimeOrDate, value_types::TimeTransparency as TimeTransparencyValue,
             },
         };
 
@@ -75,7 +74,7 @@ mod test {
         ico.simple_property(ProdId, "-//test//")?;
 
         let mut ev = ico.component(EventC)?;
-        ev.simple_property(DateTimeStamp, DateTimeForm::from(dtstamp))?;
+        ev.simple_property(DateTimeStamp, dtstamp)?;
         ev.simple_property(Uid, "unique identifier")?;
         ev.simple_property(DateTimeStart, DateTimeOrDate::from(dtstamp.date_naive()))?;
         ev.simple_property(Summary, "summary text")?;

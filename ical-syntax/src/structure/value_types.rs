@@ -301,6 +301,18 @@ impl ValueType for DateTime {
     const NAME: &'static str = "DATE-TIME";
 }
 
+/// Date-Time in UTC format
+///
+/// This is a special case of the [DateTime] value type, where only form #2,
+/// "date with UTC time" is valid.
+///
+/// This type is appropriate for the [DateTimeStamp] property.
+pub struct DateTimeUtc;
+
+impl ValueType for DateTimeUtc {
+    const NAME: &'static str = "DATE-TIME";
+}
+
 /// Duration
 ///
 /// Value Name:  DURATION
