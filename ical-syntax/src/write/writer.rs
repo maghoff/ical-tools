@@ -55,7 +55,7 @@ pub struct Writer<W: Write> {
 }
 
 impl<W: Write> Writer<W> {
-    pub fn new(inner: W) -> Self {
+    pub fn with_fmt(inner: W) -> Self {
         Self {
             inner: LineStream::new(inner),
         }
@@ -83,6 +83,14 @@ impl<W: Write> Writer<W> {
         let mut p = self.property(property)?;
         p.value(value)?;
         p.end()
+    }
+}
+
+impl<W: std::io::Write> Writer<crate::write::io_adapters::FmtToIo<W>> {
+    pub fn new(inner: W) -> Self {
+        use crate::write::io_adapters::WriteExtension;
+
+        Self::with_fmt(inner.write_adapter())
     }
 }
 

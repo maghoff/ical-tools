@@ -20,9 +20,9 @@ pub struct ICalStreamWriter<W: Write> {
 }
 
 impl<W: Write> ICalStreamWriter<W> {
-    pub fn new(inner: W) -> Self {
+    pub fn with_fmt(inner: W) -> Self {
         Self {
-            inner: Writer::new(inner),
+            inner: Writer::with_fmt(inner),
         }
     }
 
@@ -38,6 +38,14 @@ impl<W: Write> ICalStreamWriter<W> {
         prod_id: impl AsValueType<Text>,
     ) -> Result<ICalObjectWriter<'a, W>, Error> {
         ICalObjectWriter::new(self.component(ICalObject)?, prod_id)
+    }
+}
+
+impl<W: std::io::Write> ICalStreamWriter<crate::write::io_adapters::FmtToIo<W>> {
+    pub fn new(inner: W) -> Self {
+        use crate::write::io_adapters::WriteExtension;
+
+        Self::with_fmt(inner.write_adapter())
     }
 }
 

@@ -3,6 +3,7 @@ pub mod composite_value_types;
 mod content_line;
 mod folding_writer;
 pub mod icalstream;
+mod io_adapters;
 mod line_stream;
 mod parameter_value_items;
 pub mod text_writer;
@@ -28,7 +29,7 @@ mod test {
         };
 
         let mut buf = String::new();
-        let mut ics = Writer::new(&mut buf);
+        let mut ics = Writer::with_fmt(&mut buf);
 
         let mut ico = ics.component(ICalObject)?;
         ico.simple_property(Version, "2.0")?;
@@ -67,7 +68,7 @@ mod test {
             .to_utc();
 
         let mut buf = String::new();
-        let mut ics = Writer::new(&mut buf);
+        let mut ics = Writer::with_fmt(&mut buf);
 
         let mut ico = ics.component(ICalObject)?;
         ico.simple_property(Version, "2.0")?;

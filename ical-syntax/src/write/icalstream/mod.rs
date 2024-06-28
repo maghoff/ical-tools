@@ -7,7 +7,7 @@ mod test {
         use super::typed_writers::ICalStreamWriter;
 
         let mut buf = String::new();
-        let mut ics = ICalStreamWriter::new(&mut buf);
+        let mut ics = ICalStreamWriter::with_fmt(&mut buf);
 
         let ico = ics.icalendar_object("-//test//")?;
         ico.end()?;
@@ -31,7 +31,7 @@ mod test {
             .to_utc();
 
         let mut buf = String::new();
-        let mut ics = ICalStreamWriter::new(&mut buf);
+        let mut ics = ICalStreamWriter::with_fmt(&mut buf);
 
         let mut ico = ics.icalendar_object("-//test//")?;
 
