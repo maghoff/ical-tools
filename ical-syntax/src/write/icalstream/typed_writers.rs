@@ -4,9 +4,13 @@ use crate::{
     structure::{
         icalstream::{
             components::*,
-            properties::{calendar::*, descriptive::Summary, relationship::Uid},
+            properties::{
+                calendar::*, date_and_time::RecurrenceDateTimes, descriptive::Summary,
+                relationship::Uid,
+            },
         },
         value_types::*,
+        Property,
     },
     write::{
         composite_value_types::AsCompositeValueType, value_types::AsValueType, ComponentWriter,
@@ -158,6 +162,13 @@ impl<'a, W: Write> EventWriter<'a, W> {
         } else {
             Ok(())
         }
+    }
+
+    pub fn recurrence_datetimes(
+        &mut self,
+        value: impl AsCompositeValueType<<RecurrenceDateTimes as Property>::CompositeValueType>,
+    ) -> std::fmt::Result {
+        self.simple_property(RecurrenceDateTimes, value)
     }
 
     pub fn end(self) -> Result<(), Error> {
