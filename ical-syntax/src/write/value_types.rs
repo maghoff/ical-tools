@@ -1,7 +1,10 @@
 use std::{borrow::Borrow, fmt::Write};
 
 use crate::structure::{
-    composite_value_types::Any2, icalstream::parameters::Value, value_types::*, ValueType,
+    composite_value_types::{Any2, Any3, List},
+    icalstream::parameters::Value,
+    value_types::*,
+    ValueType,
 };
 
 use super::{composite_value_types::AsCompositeValueType, PropertyValueWriter};
@@ -161,6 +164,45 @@ impl std::fmt::Display for TimeTransparency {
 // TODO impl AsValueType<Uri>
 
 // TODO impl AsValueType<UtcOffset>
+
+pub struct DateTimeList<V: AsCompositeValueType<List<DateTime>>>(pub V);
+
+impl<V: AsCompositeValueType<List<DateTime>>>
+    AsCompositeValueType<Any3<List<DateTime>, List<Date>, List<PeriodOfTime>>> for DateTimeList<V>
+{
+    fn write_into<W: Write>(self, prop_value_writer: PropertyValueWriter<W>) -> std::fmt::Result {
+        self.0.write_into(prop_value_writer)
+    }
+}
+
+pub struct DateList<V: AsCompositeValueType<List<Date>>>(pub V);
+
+impl<V: AsCompositeValueType<List<Date>>>
+    AsCompositeValueType<Any3<List<DateTime>, List<Date>, List<PeriodOfTime>>> for DateList<V>
+{
+    fn write_into<W: Write>(
+        self,
+        mut prop_value_writer: PropertyValueWriter<W>,
+    ) -> std::fmt::Result {
+        prop_value_writer.param(Value, Date::NAME)?;
+        self.0.write_into(prop_value_writer)
+    }
+}
+
+pub struct PeriodOfTimeList<V: AsCompositeValueType<List<PeriodOfTime>>>(pub V);
+
+impl<V: AsCompositeValueType<List<PeriodOfTime>>>
+    AsCompositeValueType<Any3<List<DateTime>, List<Date>, List<PeriodOfTime>>>
+    for PeriodOfTimeList<V>
+{
+    fn write_into<W: Write>(
+        self,
+        mut prop_value_writer: PropertyValueWriter<W>,
+    ) -> std::fmt::Result {
+        prop_value_writer.param(Value, PeriodOfTime::NAME)?;
+        self.0.write_into(prop_value_writer)
+    }
+}
 
 #[cfg(test)]
 mod test {

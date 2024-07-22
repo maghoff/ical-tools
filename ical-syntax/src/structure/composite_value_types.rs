@@ -72,3 +72,14 @@ pub struct Any2<T0: ValueType, T1: ValueType> {
 }
 
 impl<T0: ValueType, T1: ValueType> CompositeValueType for Any2<T0, T1> {}
+
+pub struct Any3<T0: CompositeValueType, T1: CompositeValueType, T2: CompositeValueType> {
+    _phantom0: T0,
+    _phantom1: T1,
+    _phantom2: T2,
+}
+
+impl<T0: CompositeValueType, T1: CompositeValueType, T2: CompositeValueType> CompositeValueType
+    for Any3<T0, T1, T2>
+{
+}
