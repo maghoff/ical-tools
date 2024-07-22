@@ -2,7 +2,7 @@
 
 use chrono::{Datelike, Timelike, Utc};
 
-use crate::structure::value_types::{Date, DateTime, DateTimeUtc};
+use crate::structure::value_types::{Date, DateTime, DateTimeUtc, Duration};
 
 use super::value_types::AsValueType;
 
@@ -107,5 +107,11 @@ impl AsValueType<DateTimeUtc> for chrono::DateTime<Utc> {
             self.minute(),
             self.second()
         )
+    }
+}
+
+impl AsValueType<Duration> for chrono::Duration {
+    fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
+        write!(w, "{}", self)
     }
 }

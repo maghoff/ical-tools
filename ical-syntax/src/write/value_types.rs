@@ -54,8 +54,6 @@ impl<T0: AsValueType<DateTime>, T1: AsValueType<Date>> AsCompositeValueType<Any2
     }
 }
 
-// TODO impl AsValueType<Duration> for a signed duration type in chrono?
-
 // TODO impl AsValueType<Float> for misc f-types
 
 // TODO impl AsValueType<Integer>
