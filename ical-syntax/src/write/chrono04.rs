@@ -48,16 +48,7 @@ impl AsValueType<DateTime> for chrono::DateTime<chrono::Utc> {
 
 impl AsValueType<DateTimeUtc> for chrono::DateTime<chrono::Utc> {
     fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
-        write!(
-            w,
-            "{:04}{:02}{:02}T{:02}{:02}{:02}Z",
-            self.year(),
-            self.month(),
-            self.day(),
-            self.hour(),
-            self.minute(),
-            self.second()
-        )
+        <Self as AsValueType<DateTime>>::fmt(self, w)
     }
 }
 
