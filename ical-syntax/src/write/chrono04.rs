@@ -24,6 +24,12 @@ impl AsValueType<DateTime> for chrono::NaiveDateTime {
     }
 }
 
+impl From<chrono::NaiveDateTime> for DateTimeOrDate<chrono::NaiveDateTime, NeverValue> {
+    fn from(value: chrono::NaiveDateTime) -> Self {
+        Self::DateTime(value)
+    }
+}
+
 /// `chrono::DateTime<chrono::Utc>` corresponds to the _UTC_ form of a DateTime
 impl AsValueType<DateTime> for chrono::DateTime<chrono::Utc> {
     fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
@@ -40,32 +46,6 @@ impl AsValueType<DateTime> for chrono::DateTime<chrono::Utc> {
     }
 }
 
-impl AsValueType<Date> for chrono::NaiveDate {
-    fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
-        write!(w, "{:04}{:02}{:02}", self.year(), self.month(), self.day())
-    }
-}
-
-impl From<chrono::NaiveDateTime> for DateTimeOrDate<chrono::NaiveDateTime, NeverValue> {
-    fn from(value: chrono::NaiveDateTime) -> Self {
-        Self::DateTime(value)
-    }
-}
-
-impl From<chrono::DateTime<chrono::Utc>>
-    for DateTimeOrDate<chrono::DateTime<chrono::Utc>, NeverValue>
-{
-    fn from(value: chrono::DateTime<chrono::Utc>) -> Self {
-        Self::DateTime(value)
-    }
-}
-
-impl From<chrono::NaiveDate> for DateTimeOrDate<NeverValue, chrono::NaiveDate> {
-    fn from(value: chrono::NaiveDate) -> Self {
-        Self::Date(value)
-    }
-}
-
 impl AsValueType<DateTimeUtc> for chrono::DateTime<chrono::Utc> {
     fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
         write!(
@@ -78,6 +58,26 @@ impl AsValueType<DateTimeUtc> for chrono::DateTime<chrono::Utc> {
             self.minute(),
             self.second()
         )
+    }
+}
+
+impl From<chrono::DateTime<chrono::Utc>>
+    for DateTimeOrDate<chrono::DateTime<chrono::Utc>, NeverValue>
+{
+    fn from(value: chrono::DateTime<chrono::Utc>) -> Self {
+        Self::DateTime(value)
+    }
+}
+
+impl AsValueType<Date> for chrono::NaiveDate {
+    fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
+        write!(w, "{:04}{:02}{:02}", self.year(), self.month(), self.day())
+    }
+}
+
+impl From<chrono::NaiveDate> for DateTimeOrDate<NeverValue, chrono::NaiveDate> {
+    fn from(value: chrono::NaiveDate) -> Self {
+        Self::Date(value)
     }
 }
 
