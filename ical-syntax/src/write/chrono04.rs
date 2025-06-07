@@ -1,6 +1,6 @@
 #![cfg(feature = "chrono04")]
 
-use chrono::{Datelike, Timelike, Utc};
+use chrono::{Datelike as _, Timelike as _};
 
 use crate::structure::value_types::{Date, DateTime, DateTimeUtc, Duration};
 use crate::write::value_types::NeverValue;
@@ -8,58 +8,35 @@ use crate::write::value_types::NeverValue;
 use super::value_types::AsValueType;
 use super::value_types::DateTimeOrDate;
 
-// TODO: Document, at least for myself in the future, why I ended up with this
-// intermediate type. Can we not simply implement AsValueType<DateTime>
-// directly for the underlying types?
-
-/// A concrete representation of the DATETIME type using types from [chrono].
-///
-/// [DateTime] values can be expressed in three distinct forms:
-/// 1. Floating, corresponding to [chrono::NaiveDateTime]
-/// 2. UTC, corresponding to [chrono::DateTime<chrono::Utc>]
-/// 3. Tied to a timezone via the TZID parameter
-///
-/// This type models forms 1 and 2. To express times in form 3 you have to
-/// explicitly write the TZID parameter and use [DateTimeForm::Floating].
-/// In this case, you also have to write time zone specifications to the
-/// ICalObject. See [DateTime] for details.
-pub enum DateTimeForm {
-    /// A floating DateTime, representing the given datetime in the timezone
-    /// the user is in at any given time.
-    Floating(chrono::NaiveDateTime),
-
-    /// A DateTime in UTC.
-    Utc(chrono::DateTime<Utc>),
+/// `chrono::NaiveDateTime` corresponds to the _floating_ form of a DateTime
+impl AsValueType<DateTime> for chrono::NaiveDateTime {
+    fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
+        write!(
+            w,
+            "{:04}{:02}{:02}T{:02}{:02}{:02}",
+            self.year(),
+            self.month(),
+            self.day(),
+            self.hour(),
+            self.minute(),
+            self.second()
+        )
+    }
 }
 
-impl AsValueType<DateTime> for DateTimeForm {
+/// `chrono::DateTime<chrono::Utc>` corresponds to the _UTC_ form of a DateTime
+impl AsValueType<DateTime> for chrono::DateTime<chrono::Utc> {
     fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
-        match self {
-            DateTimeForm::Floating(x) => {
-                write!(
-                    w,
-                    "{:04}{:02}{:02}T{:02}{:02}{:02}",
-                    x.year(),
-                    x.month(),
-                    x.day(),
-                    x.hour(),
-                    x.minute(),
-                    x.second()
-                )
-            }
-            DateTimeForm::Utc(x) => {
-                write!(
-                    w,
-                    "{:04}{:02}{:02}T{:02}{:02}{:02}Z",
-                    x.year(),
-                    x.month(),
-                    x.day(),
-                    x.hour(),
-                    x.minute(),
-                    x.second()
-                )
-            }
-        }
+        write!(
+            w,
+            "{:04}{:02}{:02}T{:02}{:02}{:02}Z",
+            self.year(),
+            self.month(),
+            self.day(),
+            self.hour(),
+            self.minute(),
+            self.second()
+        )
     }
 }
 
@@ -69,37 +46,27 @@ impl AsValueType<Date> for chrono::NaiveDate {
     }
 }
 
-impl From<chrono::NaiveDateTime> for DateTimeForm {
+impl From<chrono::NaiveDateTime> for DateTimeOrDate<chrono::NaiveDateTime, NeverValue> {
     fn from(value: chrono::NaiveDateTime) -> Self {
-        Self::Floating(value)
+        Self::DateTime(value)
     }
 }
 
-impl From<chrono::DateTime<Utc>> for DateTimeForm {
-    fn from(value: chrono::DateTime<Utc>) -> Self {
-        Self::Utc(value)
+impl From<chrono::DateTime<chrono::Utc>>
+    for DateTimeOrDate<chrono::DateTime<chrono::Utc>, NeverValue>
+{
+    fn from(value: chrono::DateTime<chrono::Utc>) -> Self {
+        Self::DateTime(value)
     }
 }
 
-impl From<chrono::NaiveDateTime> for DateTimeOrDate<DateTimeForm, NeverValue> {
-    fn from(value: chrono::NaiveDateTime) -> Self {
-        Self::DateTime(value.into())
-    }
-}
-
-impl From<chrono::DateTime<Utc>> for DateTimeOrDate<DateTimeForm, NeverValue> {
-    fn from(value: chrono::DateTime<Utc>) -> Self {
-        Self::DateTime(value.into())
-    }
-}
-
-impl<T: AsValueType<Date>> From<T> for DateTimeOrDate<NeverValue, T> {
-    fn from(value: T) -> Self {
+impl From<chrono::NaiveDate> for DateTimeOrDate<NeverValue, chrono::NaiveDate> {
+    fn from(value: chrono::NaiveDate) -> Self {
         Self::Date(value)
     }
 }
 
-impl AsValueType<DateTimeUtc> for chrono::DateTime<Utc> {
+impl AsValueType<DateTimeUtc> for chrono::DateTime<chrono::Utc> {
     fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
         write!(
             w,
@@ -137,7 +104,7 @@ mod test {
         let datetime = chrono::DateTime::parse_from_rfc3339("2024-06-26T12:00:00Z")
             .unwrap()
             .naive_utc();
-        test_case::<DateTime>(DateTimeForm::from(datetime), "20240626T120000");
+        test_case::<DateTime>(datetime, "20240626T120000");
     }
 
     #[test]
@@ -145,7 +112,7 @@ mod test {
         let datetime = chrono::DateTime::parse_from_rfc3339("2024-06-26T12:00:00Z")
             .unwrap()
             .to_utc();
-        test_case::<DateTime>(DateTimeForm::from(datetime), "20240626T120000Z");
+        test_case::<DateTime>(datetime, "20240626T120000Z");
     }
 
     #[test]
@@ -170,12 +137,12 @@ mod test {
         let duration = end - start;
 
         test_case::<PeriodOfTime>(
-            PeriodOfTimeBuilder::start(DateTimeForm::from(start)).end(DateTimeForm::from(end)),
+            PeriodOfTimeBuilder::start(start).end(end),
             "20240626T120000Z/20240626T130000Z",
         );
 
         test_case::<PeriodOfTime>(
-            PeriodOfTimeBuilder::start(DateTimeForm::from(start)).duration(duration),
+            PeriodOfTimeBuilder::start(start).duration(duration),
             "20240626T120000Z/PT3600S",
         );
     }
