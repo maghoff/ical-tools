@@ -43,13 +43,13 @@ impl<T: Borrow<bool>> AsValueType<Boolean> for T {
 // See the chrono04-module for AsValueType<DateTime> and AsValueType<Date>
 
 /// A choice between the [DATETIME][DateTime] and [DATE][Date] value types.
-pub enum DateTimeOrDate<T0: AsValueType<DateTime>, T1: AsValueType<Date>> {
-    DateTime(T0),
-    Date(T1),
+pub enum DateTimeOrDate<DateTimeT, DateT> {
+    DateTime(DateTimeT),
+    Date(DateT),
 }
 
-impl<T0: AsValueType<DateTime>, T1: AsValueType<Date>> AsCompositeValueType<Any2<DateTime, Date>>
-    for DateTimeOrDate<T0, T1>
+impl<DateTimeT: AsValueType<DateTime>, DateT: AsValueType<Date>>
+    AsCompositeValueType<Any2<DateTime, Date>> for DateTimeOrDate<DateTimeT, DateT>
 {
     fn write_into<W: std::fmt::Write>(
         self,
@@ -69,11 +69,7 @@ impl<T0: AsValueType<DateTime>, T1: AsValueType<Date>> AsCompositeValueType<Any2
 
 // TODO impl AsValueType<Integer>
 
-pub enum PeriodOfTimeValue<
-    StartT: AsValueType<DateTime>,
-    EndT: AsValueType<DateTime>,
-    DurationT: AsValueType<Duration>,
-> {
+pub enum PeriodOfTimeValue<StartT, EndT, DurationT> {
     Explicit(StartT, EndT),
     Start(StartT, DurationT),
 }
