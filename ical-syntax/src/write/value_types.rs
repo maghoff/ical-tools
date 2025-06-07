@@ -253,4 +253,10 @@ mod test {
             "20240626T120000Z/PT3600S",
         );
     }
+
+    #[cfg(feature = "chrono04")]
+    #[test]
+    fn chrono_time_delta() {
+        test_case::<Duration>(chrono::TimeDelta::hours(1), "PT3600S");
+    }
 }
