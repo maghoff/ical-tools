@@ -135,10 +135,9 @@ impl<'a, W: Write> EventWriter<'a, W> {
         self.simple_property(Uid, value)
     }
 
-    #[cfg(feature = "chrono04")]
-    pub fn dtstart(
+    pub fn dtstart<T0: AsValueType<DateTime>, T1: AsValueType<Date>>(
         &mut self,
-        dtstart: impl Into<crate::write::chrono04::DateTimeOrDate>,
+        dtstart: impl Into<crate::write::value_types::DateTimeOrDate<T0, T1>>,
     ) -> std::fmt::Result {
         self.simple_property(
             crate::structure::icalstream::properties::date_and_time::DateTimeStart,

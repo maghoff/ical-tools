@@ -13,9 +13,9 @@ pub trait AsValueType<To: ValueType> {
     fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result;
 }
 
-pub enum Never {}
+pub enum NeverValue {}
 
-impl<V: ValueType> AsValueType<V> for Never {
+impl<V: ValueType> AsValueType<V> for NeverValue {
     fn fmt<W: std::fmt::Write>(&self, _w: &mut W) -> std::fmt::Result {
         unreachable!()
     }
@@ -90,7 +90,7 @@ impl<StartT: AsValueType<DateTime>> PeriodOfTimeBuilder<StartT> {
     pub fn end<EndT: AsValueType<DateTime>>(
         self,
         end: EndT,
-    ) -> PeriodOfTimeValue<StartT, EndT, Never> {
+    ) -> PeriodOfTimeValue<StartT, EndT, NeverValue> {
         // TODO validate that start is earlier than end
         PeriodOfTimeValue::Explicit(self.start, end)
     }
@@ -98,7 +98,7 @@ impl<StartT: AsValueType<DateTime>> PeriodOfTimeBuilder<StartT> {
     pub fn duration<DurationT: AsValueType<Duration>>(
         self,
         duration: DurationT,
-    ) -> PeriodOfTimeValue<StartT, Never, DurationT> {
+    ) -> PeriodOfTimeValue<StartT, NeverValue, DurationT> {
         // TODO validate that duration is non-negative (and non-zero?)
         PeriodOfTimeValue::Start(self.start, duration)
     }
@@ -226,37 +226,5 @@ mod test {
     fn text() {
         test_case::<Text>("simple text", "simple text");
         test_case::<Text>("escaping is elsewhere;,\n", "escaping is elsewhere;,\n");
-    }
-
-    #[cfg(feature = "chrono04")]
-    #[test]
-    fn period_of_time() {
-        use crate::write::chrono04::DateTimeForm;
-
-        let start = chrono::DateTime::parse_from_rfc3339("2024-06-26T12:00:00Z")
-            .unwrap()
-            .to_utc();
-
-        let end = chrono::DateTime::parse_from_rfc3339("2024-06-26T13:00:00Z")
-            .unwrap()
-            .to_utc();
-
-        let duration = end - start;
-
-        test_case::<PeriodOfTime>(
-            PeriodOfTimeBuilder::start(DateTimeForm::from(start)).end(DateTimeForm::from(end)),
-            "20240626T120000Z/20240626T130000Z",
-        );
-
-        test_case::<PeriodOfTime>(
-            PeriodOfTimeBuilder::start(DateTimeForm::from(start)).duration(duration),
-            "20240626T120000Z/PT3600S",
-        );
-    }
-
-    #[cfg(feature = "chrono04")]
-    #[test]
-    fn chrono_time_delta() {
-        test_case::<Duration>(chrono::TimeDelta::hours(1), "PT3600S");
     }
 }

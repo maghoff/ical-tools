@@ -57,9 +57,7 @@ mod test {
                     relationship::Uid,
                 },
             },
-            write::{
-                chrono04::DateTimeOrDate, value_types::TimeTransparency as TimeTransparencyValue,
-            },
+            write::value_types::TimeTransparency as TimeTransparencyValue,
         };
 
         let dtstamp = chrono::DateTime::parse_from_rfc3339("2024-06-26T12:00:00Z")
@@ -76,7 +74,10 @@ mod test {
         let mut ev = ico.component(EventC)?;
         ev.simple_property(DateTimeStamp, dtstamp)?;
         ev.simple_property(Uid, "unique identifier")?;
-        ev.simple_property(DateTimeStart, DateTimeOrDate::from(dtstamp.date_naive()))?;
+        ev.simple_property(
+            DateTimeStart,
+            crate::write::value_types::DateTimeOrDate::from(dtstamp.date_naive()),
+        )?;
         ev.simple_property(Summary, "summary text")?;
         ev.simple_property(TimeTransparency, TimeTransparencyValue::Transparent)?;
         ev.end()?;
