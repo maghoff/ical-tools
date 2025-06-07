@@ -110,7 +110,7 @@ impl AsValueType<DateTimeUtc> for chrono::DateTime<Utc> {
     }
 }
 
-impl AsValueType<Duration> for chrono::Duration {
+impl AsValueType<Duration> for chrono::TimeDelta {
     fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
         write!(w, "{}", self)
     }
