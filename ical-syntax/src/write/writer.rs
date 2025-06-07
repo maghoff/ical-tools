@@ -123,7 +123,7 @@ impl<'a, W: Write, C: Component> ComponentWriter<'a, W, C> {
     }
 }
 
-impl<'a, W: Write, C: Component> Drop for ComponentWriter<'a, W, C> {
+impl<W: Write, C: Component> Drop for ComponentWriter<'_, W, C> {
     fn drop(&mut self) {
         assert!(
             self.is_closed,
