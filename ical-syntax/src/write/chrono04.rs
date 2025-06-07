@@ -107,6 +107,12 @@ mod test {
     }
 
     #[test]
+    fn date() {
+        let date = chrono::NaiveDate::from_ymd_opt(2024, 6, 26).unwrap();
+        test_case::<Date>(date, "20240626");
+    }
+
+    #[test]
     fn duration() {
         test_case::<Duration>(chrono::TimeDelta::hours(1), "PT3600S");
     }

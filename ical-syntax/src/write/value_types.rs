@@ -40,7 +40,8 @@ impl<T: Borrow<bool>> AsValueType<Boolean> for T {
 // TODO: Find a relevant type for impling AsValueType<CalAddress>
 // Maybe EmailAddress from https://crates.io/crates/email_address ?
 
-// See the chrono04-module for AsValueType<DateTime> and AsValueType<Date>
+// See the chrono04 and jiff02 modules for AsValueType<DateTime>,
+// AsValueType<DateTimeUtc> and AsValueType<Date>
 
 /// A choice between the [DATETIME][DateTime] and [DATE][Date] value types.
 pub enum DateTimeOrDate<DateTimeT, DateT> {

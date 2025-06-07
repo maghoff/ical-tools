@@ -8,6 +8,12 @@ version = "0.4.38"
 default-features = false
 optional = true
 
+[dependencies.jiff]
+version = "0.2.14"
+default-features = false
+optional = true
+
 [features]
 default = ["chrono04"]
 chrono04 = ["dep:chrono"]
+jiff02 = ["dep:jiff"]
