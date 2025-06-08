@@ -116,7 +116,7 @@ mod test {
                     relationship::Uid,
                 },
             },
-            write::value_types::TimeTransparency as TimeTransparencyValue,
+            write::{jiff02::UtcForm, value_types::TimeTransparency as TimeTransparencyValue},
         };
 
         let dtstamp: jiff::civil::DateTime = "2024-06-26 12:00:00".parse().unwrap();
@@ -129,7 +129,7 @@ mod test {
         ico.simple_property(ProdId, "-//test//")?;
 
         let mut ev = ico.component(EventC)?;
-        // ev.simple_property(DateTimeStamp, dtstamp)?;
+        ev.simple_property(DateTimeStamp, UtcForm::from_civil(dtstamp))?;
         ev.simple_property(Uid, "unique identifier")?;
         ev.simple_property(
             DateTimeStart,
@@ -141,13 +141,13 @@ mod test {
 
         ico.end()?;
 
-        // DTSTAMP:20240626T120000Z\r\n\
         assert_eq!(
             &buf,
             "BEGIN:VCALENDAR\r\n\
             VERSION:2.0\r\n\
             PRODID:-//test//\r\n\
             BEGIN:VEVENT\r\n\
+            DTSTAMP:20240626T120000Z\r\n\
             UID:unique identifier\r\n\
             DTSTART;VALUE=DATE:20240626\r\n\
             SUMMARY:summary text\r\n\

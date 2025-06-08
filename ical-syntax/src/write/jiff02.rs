@@ -25,36 +25,41 @@ impl From<jiff::civil::DateTime> for DateTimeOrDate<jiff::civil::DateTime, Never
     }
 }
 
-// TODO: How do we nicely implement support for UTC time with jiff?
+pub struct UtcForm {
+    datetime: jiff::civil::DateTime,
+}
 
-// impl AsValueType<DateTime> for chrono::DateTime<chrono::Utc> {
-//     fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
-//         write!(
-//             w,
-//             "{:04}{:02}{:02}T{:02}{:02}{:02}Z",
-//             self.year(),
-//             self.month(),
-//             self.day(),
-//             self.hour(),
-//             self.minute(),
-//             self.second()
-//         )
-//     }
-// }
+impl UtcForm {
+    pub fn from_civil(datetime: jiff::civil::DateTime) -> Self {
+        Self { datetime }
+    }
 
-// impl AsValueType<DateTimeUtc> for chrono::DateTime<chrono::Utc> {
-//     fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
-//         <Self as AsValueType<DateTime>>::fmt(self, w)
-//     }
-// }
+    pub fn from_zoned(datetime: jiff::Zoned) -> Result<Self, jiff::Error> {
+        Ok(Self {
+            datetime: datetime.in_tz("UTC")?.datetime(),
+        })
+    }
+}
 
-// impl From<chrono::DateTime<chrono::Utc>>
-//     for DateTimeOrDate<chrono::DateTime<chrono::Utc>, NeverValue>
-// {
-//     fn from(value: chrono::DateTime<chrono::Utc>) -> Self {
-//         Self::DateTime(value)
-//     }
-// }
+impl AsValueType<DateTime> for UtcForm {
+    fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
+        // self.datetime.fmt(w)?;
+        <jiff::civil::DateTime as AsValueType<DateTime>>::fmt(&self.datetime, w)?;
+        write!(w, "Z")
+    }
+}
+
+impl AsValueType<DateTimeUtc> for UtcForm {
+    fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
+        <Self as AsValueType<DateTime>>::fmt(self, w)
+    }
+}
+
+impl From<UtcForm> for DateTimeOrDate<UtcForm, NeverValue> {
+    fn from(value: UtcForm) -> Self {
+        Self::DateTime(value)
+    }
+}
 
 impl AsValueType<Date> for jiff::civil::Date {
     fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
