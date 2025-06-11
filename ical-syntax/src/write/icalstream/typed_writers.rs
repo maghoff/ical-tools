@@ -1,16 +1,14 @@
-use std::fmt::{Display, Error, Write};
+use std::fmt::{Error, Write};
 
 use crate::{
     structure::{
         icalstream::{
-            components::*,
-            properties::{
-                calendar::*, date_and_time::RecurrenceDateTimes, descriptive::Summary,
-                relationship::Uid,
+            components::{
+                self, EventC, EventCProperty, ICalObject, ICalObjectProperty, ICalStreamComponent,
             },
+            properties,
         },
-        value_types::*,
-        Property,
+        value_types, Property,
     },
     write::{
         composite_value_types::AsCompositeValueType, value_types::AsValueType, ComponentWriter,
@@ -39,7 +37,7 @@ impl<W: Write> ICalStreamWriter<W> {
 
     pub fn icalendar_object<'a, 'b: 'a>(
         &'b mut self,
-        prod_id: impl AsValueType<Text>,
+        prod_id: impl AsValueType<value_types::Text>,
     ) -> Result<ICalObjectWriter<'a, W>, Error> {
         ICalObjectWriter::new(self.component(ICalObject)?, prod_id)
     }
@@ -60,11 +58,11 @@ pub struct ICalObjectWriter<'a, W: Write> {
 impl<'a, W: Write> ICalObjectWriter<'a, W> {
     pub fn new(
         inner: ComponentWriter<'a, W, ICalObject>,
-        prod_id: impl AsValueType<Text>,
+        prod_id: impl AsValueType<value_types::Text>,
     ) -> Result<Self, Error> {
         let mut new = Self { inner };
-        new.simple_property(Version, "2.0")?;
-        new.simple_property(ProdId, prod_id)?;
+        new.simple_property(properties::calendar::Version, "2.0")?;
+        new.simple_property(properties::calendar::ProdId, prod_id)?;
 
         Ok(new)
     }
@@ -84,7 +82,7 @@ impl<'a, W: Write> ICalObjectWriter<'a, W> {
         self.inner.simple_property(property, value)
     }
 
-    pub fn component<'x, 'y: 'x, NC: ICalObjectComponent>(
+    pub fn component<'x, 'y: 'x, NC: components::ICalObjectComponent>(
         &'y mut self,
         component: NC,
     ) -> Result<ComponentWriter<'x, W, NC>, Error> {
@@ -102,6 +100,17 @@ impl<'a, W: Write> ICalObjectWriter<'a, W> {
 
 pub struct EventWriter<'a, W: Write> {
     inner: ComponentWriter<'a, W, EventC>,
+}
+
+macro_rules! simple_property {
+    ($name:ident, $prop:path) => {
+        pub fn $name(
+            &mut self,
+            value: impl AsCompositeValueType<<$prop as Property>::CompositeValueType>,
+        ) -> std::fmt::Result {
+            self.simple_property($prop, value)
+        }
+    };
 }
 
 impl<'a, W: Write> EventWriter<'a, W> {
@@ -124,29 +133,26 @@ impl<'a, W: Write> EventWriter<'a, W> {
         self.inner.simple_property(property, value)
     }
 
-    pub fn dtstamp(&mut self, dtstamp: impl AsCompositeValueType<DateTimeUtc>) -> std::fmt::Result {
-        self.simple_property(
-            crate::structure::icalstream::properties::change_management::DateTimeStamp,
-            dtstamp,
-        )
+    pub fn end(self) -> Result<(), Error> {
+        self.inner.end()
     }
 
-    pub fn uid(&mut self, value: impl Display) -> std::fmt::Result {
-        self.simple_property(Uid, value)
-    }
+    /* == Standard simple property functions == */
+    simple_property!(dtstamp, properties::change_management::DateTimeStamp);
+    simple_property!(uid, properties::relationship::Uid);
+    simple_property!(summary, properties::descriptive::Summary);
+    simple_property!(
+        recurrence_datetimes,
+        properties::date_and_time::RecurrenceDateTimes
+    );
 
-    pub fn dtstart<T0: AsValueType<DateTime>, T1: AsValueType<Date>>(
+    /* == Custom simple property functions == */
+
+    pub fn dtstart<T0: AsValueType<value_types::DateTime>, T1: AsValueType<value_types::Date>>(
         &mut self,
         dtstart: impl Into<crate::write::value_types::DateTimeOrDate<T0, T1>>,
     ) -> std::fmt::Result {
-        self.simple_property(
-            crate::structure::icalstream::properties::date_and_time::DateTimeStart,
-            dtstart.into(),
-        )
-    }
-
-    pub fn summary(&mut self, value: impl Display) -> std::fmt::Result {
-        self.simple_property(Summary, value)
+        self.simple_property(properties::date_and_time::DateTimeStart, dtstart.into())
     }
 
     pub fn time_transparency(
@@ -154,23 +160,9 @@ impl<'a, W: Write> EventWriter<'a, W> {
         value: crate::write::value_types::TimeTransparency,
     ) -> std::fmt::Result {
         if value != Default::default() {
-            self.simple_property(
-                crate::structure::icalstream::properties::date_and_time::TimeTransparency,
-                value,
-            )
+            self.simple_property(properties::date_and_time::TimeTransparency, value)
         } else {
             Ok(())
         }
-    }
-
-    pub fn recurrence_datetimes(
-        &mut self,
-        value: impl AsCompositeValueType<<RecurrenceDateTimes as Property>::CompositeValueType>,
-    ) -> std::fmt::Result {
-        self.simple_property(RecurrenceDateTimes, value)
-    }
-
-    pub fn end(self) -> Result<(), Error> {
-        self.inner.end()
     }
 }
