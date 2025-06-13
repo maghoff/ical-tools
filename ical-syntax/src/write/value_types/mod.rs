@@ -1,5 +1,10 @@
+mod chrono04;
+pub mod jiff02;
+mod period_of_time;
+
 use std::{borrow::Borrow, fmt::Write};
 
+use super::{composite_value_types::AsCompositeValueType, PropertyValueWriter};
 use crate::structure::{
     composite_value_types::{Any2, Any3, List},
     icalstream::parameters::Value,
@@ -7,10 +12,9 @@ use crate::structure::{
     ValueType,
 };
 
-use super::{composite_value_types::AsCompositeValueType, PropertyValueWriter};
-
-mod chrono04;
-pub mod jiff02;
+pub use period_of_time::{
+    PeriodOfTimeBuilder, PeriodOfTimeDurationValue, PeriodOfTimeStartEndValue,
+};
 
 pub trait AsValueType<To: ValueType> {
     fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result;
@@ -72,72 +76,6 @@ impl<DateTimeT: AsValueType<DateTime>, DateT: AsValueType<Date>>
 // TODO impl AsValueType<Float> for misc f-types
 
 // TODO impl AsValueType<Integer>
-
-pub struct PeriodOfTimeStartEndValue<StartT, EndT> {
-    start: StartT,
-    end: EndT,
-}
-
-impl<StartT: AsValueType<DateTime>, EndT: AsValueType<DateTime>> AsValueType<PeriodOfTime>
-    for PeriodOfTimeStartEndValue<StartT, EndT>
-{
-    fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result {
-        self.start.fmt(w)?;
-        write!(w, "/")?;
-        self.end.fmt(w)?;
-
-        Ok(())
-    }
-}
-
-pub struct PeriodOfTimeDurationValue<StartT, DurationT> {
-    start: StartT,
-    duration: DurationT,
-}
-
-impl<StartT: AsValueType<DateTime>, DurationT: AsValueType<Duration>> AsValueType<PeriodOfTime>
-    for PeriodOfTimeDurationValue<StartT, DurationT>
-{
-    fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result {
-        self.start.fmt(w)?;
-        write!(w, "/")?;
-        self.duration.fmt(w)?;
-
-        Ok(())
-    }
-}
-
-pub struct PeriodOfTimeBuilder<StartT> {
-    start: StartT,
-}
-
-impl<StartT: AsValueType<DateTime>> PeriodOfTimeBuilder<StartT> {
-    pub fn start(start: StartT) -> Self {
-        Self { start }
-    }
-
-    pub fn end<EndT: AsValueType<DateTime>>(
-        self,
-        end: EndT,
-    ) -> PeriodOfTimeStartEndValue<StartT, EndT> {
-        // TODO validate that start is earlier than end
-        PeriodOfTimeStartEndValue {
-            start: self.start,
-            end,
-        }
-    }
-
-    pub fn duration<DurationT: AsValueType<Duration>>(
-        self,
-        duration: DurationT,
-    ) -> PeriodOfTimeDurationValue<StartT, DurationT> {
-        // TODO validate that duration is non-negative (and non-zero?)
-        PeriodOfTimeDurationValue {
-            start: self.start,
-            duration,
-        }
-    }
-}
 
 // TODO impl AsValueType<RecurrenceRule>. And probably elaborate types for
 // building recurrence rules
