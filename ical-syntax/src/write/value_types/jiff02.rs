@@ -1,7 +1,7 @@
 #![cfg(feature = "jiff02")]
 
+use super::{AsValueType, DateTimeOrDate, NeverValue};
 use crate::structure::value_types::{Date, DateTime, DateTimeUtc, Duration};
-use crate::write::value_types::{AsValueType, DateTimeOrDate, NeverValue};
 
 /// `jiff::civil::DateTime` corresponds to the _floating_ form of a DateTime
 impl AsValueType<DateTime> for jiff::civil::DateTime {
@@ -43,7 +43,6 @@ impl UtcForm {
 
 impl AsValueType<DateTime> for UtcForm {
     fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
-        // self.datetime.fmt(w)?;
         <jiff::civil::DateTime as AsValueType<DateTime>>::fmt(&self.datetime, w)?;
         write!(w, "Z")
     }

@@ -2,11 +2,8 @@
 
 use chrono::{Datelike as _, Timelike as _};
 
+use super::{AsValueType, DateTimeOrDate, NeverValue};
 use crate::structure::value_types::{Date, DateTime, DateTimeUtc, Duration};
-use crate::write::value_types::NeverValue;
-
-use super::value_types::AsValueType;
-use super::value_types::DateTimeOrDate;
 
 /// `chrono::NaiveDateTime` corresponds to the _floating_ form of a DateTime
 impl AsValueType<DateTime> for chrono::NaiveDateTime {

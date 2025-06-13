@@ -1,10 +1,8 @@
-mod chrono04;
 pub mod composite_value_types;
 mod content_line;
 mod folding_writer;
 pub mod icalstream;
 mod io_adapters;
-mod jiff02;
 mod line_stream;
 mod parameter_value_items;
 pub mod text_writer;
@@ -116,7 +114,10 @@ mod test {
                     relationship::Uid,
                 },
             },
-            write::{jiff02::UtcForm, value_types::TimeTransparency as TimeTransparencyValue},
+            write::{
+                value_types::jiff02::UtcForm,
+                value_types::TimeTransparency as TimeTransparencyValue,
+            },
         };
 
         let dtstamp: jiff::civil::DateTime = "2024-06-26 12:00:00".parse().unwrap();
