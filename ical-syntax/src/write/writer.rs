@@ -50,7 +50,7 @@ where
     }
 }
 
-pub struct Writer<W: Write> {
+pub struct Writer<W> {
     inner: LineStream<W>,
 }
 
@@ -97,7 +97,7 @@ impl<W: std::io::Write> Writer<crate::write::io_adapters::FmtToIo<W>> {
 const BEGIN_COMPONENT: &str = "BEGIN";
 const END_COMPONENT: &str = "END";
 
-pub struct ComponentWriter<'a, W: Write, C: Component> {
+pub struct ComponentWriter<'a, W, C> {
     inner: &'a mut Writer<W>,
     is_closed: bool,
     _component: PhantomData<C>,
@@ -123,7 +123,7 @@ impl<'a, W: Write, C: Component> ComponentWriter<'a, W, C> {
     }
 }
 
-impl<W: Write, C: Component> Drop for ComponentWriter<'_, W, C> {
+impl<W, C> Drop for ComponentWriter<'_, W, C> {
     fn drop(&mut self) {
         assert!(
             self.is_closed,
@@ -146,7 +146,7 @@ impl<W: Write, C: Component> DerefMut for ComponentWriter<'_, W, C> {
     }
 }
 
-pub struct PropertyWriter<'a, W: Write, P: Property> {
+pub struct PropertyWriter<'a, W, P> {
     content_line: ContentLine<&'a mut W>,
     is_closed: bool,
     _property: PhantomData<P>,
@@ -196,7 +196,7 @@ impl<'a, W: Write, P: Property> PropertyWriter<'a, W, P> {
 //     }
 // }
 
-pub struct PropertyValueWriter<'a, 'b: 'a, W: Write> {
+pub struct PropertyValueWriter<'a, 'b, W> {
     inner: &'a mut ContentLine<&'b mut W>,
 }
 

@@ -75,7 +75,7 @@ pub enum PeriodOfTimeValue<StartT, EndT, DurationT> {
     Start(StartT, DurationT),
 }
 
-pub struct PeriodOfTimeBuilder<StartT: AsValueType<DateTime>> {
+pub struct PeriodOfTimeBuilder<StartT> {
     start: StartT,
 }
 

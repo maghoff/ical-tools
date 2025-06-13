@@ -17,7 +17,7 @@ use crate::{
 };
 
 /// Reference: [RFC5545 3.4](https://www.rfc-editor.org/rfc/rfc5545.html#section-3.4)
-pub struct ICalStreamWriter<W: Write> {
+pub struct ICalStreamWriter<W> {
     inner: Writer<W>,
 }
 
@@ -51,7 +51,7 @@ impl<W: std::io::Write> ICalStreamWriter<crate::write::io_adapters::FmtToIo<W>> 
     }
 }
 
-pub struct ICalObjectWriter<'a, W: Write> {
+pub struct ICalObjectWriter<'a, W> {
     inner: ComponentWriter<'a, W, ICalObject>,
 }
 
@@ -98,7 +98,7 @@ impl<'a, W: Write> ICalObjectWriter<'a, W> {
     }
 }
 
-pub struct EventWriter<'a, W: Write> {
+pub struct EventWriter<'a, W> {
     inner: ComponentWriter<'a, W, EventC>,
 }
 

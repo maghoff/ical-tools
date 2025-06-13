@@ -20,7 +20,7 @@ use std::fmt::Write;
 /// `x-name` grammar anyway, except for the leading `X-`.
 ///
 /// Writing text containing forbidden characters will yield `Result::Err`.
-pub struct NameWriter<W: Write> {
+pub struct NameWriter<W> {
     inner: W,
 }
 
@@ -65,7 +65,7 @@ impl<W: Write> NameWriter<W> {
 /// Use [`ParamtextWriter`] for writing unquoted param values.
 //
 // TODO: Consider ^-escaping as defined in https://datatracker.ietf.org/doc/html/rfc6868
-pub struct QuotedStringWriter<W: Write> {
+pub struct QuotedStringWriter<W> {
     inner: W,
     is_closed: bool,
 }
@@ -100,7 +100,7 @@ impl<W: Write> QuotedStringWriter<W> {
     }
 }
 
-impl<W: Write> Drop for QuotedStringWriter<W> {
+impl<W> Drop for QuotedStringWriter<W> {
     fn drop(&mut self) {
         assert!(
             self.is_closed,
@@ -125,7 +125,7 @@ impl<W: Write> Drop for QuotedStringWriter<W> {
 /// Writing text containing forbidden characters will yield `Result::Err`.
 ///
 /// Use [`QuotedStringWriter`] for writing quoted param values.
-pub struct ParamtextWriter<W: Write> {
+pub struct ParamtextWriter<W> {
     inner: W,
 }
 

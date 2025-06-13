@@ -3,7 +3,7 @@ use std::fmt::Write;
 
 use super::ContentLine;
 
-pub struct LineStream<W: Write> {
+pub struct LineStream<W> {
     inner: W,
 }
 

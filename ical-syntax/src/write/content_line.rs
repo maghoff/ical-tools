@@ -18,7 +18,7 @@ enum State {
     Value,
 }
 
-pub struct ContentLine<W: Write> {
+pub struct ContentLine<W> {
     inner: FoldingWriter<W>,
     state: State,
 }
@@ -152,7 +152,7 @@ impl<W: Write> ParamValueWriter<W> for ContentLine<W> {
     }
 }
 
-pub struct ValueTupleWriter<'a, W: Write> {
+pub struct ValueTupleWriter<'a, W> {
     inner: &'a mut FoldingWriter<W>,
     first_value: bool,
 }
@@ -178,7 +178,7 @@ impl<'a, W: Write> ValueTupleWriter<'a, W> {
     }
 }
 
-pub struct ValueListWriter<'a, W: Write> {
+pub struct ValueListWriter<'a, W> {
     inner: &'a mut FoldingWriter<W>,
     first_value: bool,
 }

@@ -9,7 +9,7 @@ const CRLF: &str = "\r\n";
 ///
 /// To maintain some human readability, this implementation folds at UTF-8
 /// codepoint boundaries. Grapheme clusters may be split.
-pub struct FoldingWriter<W: Write> {
+pub struct FoldingWriter<W> {
     inner: W,
     rem_line_len: u32,
     passed_eol: bool,
@@ -30,7 +30,7 @@ impl<W: Write> FoldingWriter<W> {
     }
 }
 
-impl<W: Write> Drop for FoldingWriter<W> {
+impl<W> Drop for FoldingWriter<W> {
     fn drop(&mut self) {
         assert!(
             self.passed_eol,

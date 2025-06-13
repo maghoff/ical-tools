@@ -10,7 +10,7 @@ use std::fmt::Write;
 ///
 /// Reference: [RFC 5545
 /// 3.3.11](https://www.rfc-editor.org/rfc/rfc5545#section-3.3.11)
-pub struct TextWriter<W: Write> {
+pub struct TextWriter<W> {
     inner: W,
 }
 
