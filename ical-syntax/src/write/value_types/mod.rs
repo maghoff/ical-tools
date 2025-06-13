@@ -73,9 +73,38 @@ impl<DateTimeT: AsValueType<DateTime>, DateT: AsValueType<Date>>
 
 // TODO impl AsValueType<Integer>
 
-pub enum PeriodOfTimeValue<StartT, EndT, DurationT> {
-    Explicit(StartT, EndT),
-    Start(StartT, DurationT),
+pub struct PeriodOfTimeStartEndValue<StartT, EndT> {
+    start: StartT,
+    end: EndT,
+}
+
+impl<StartT: AsValueType<DateTime>, EndT: AsValueType<DateTime>> AsValueType<PeriodOfTime>
+    for PeriodOfTimeStartEndValue<StartT, EndT>
+{
+    fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result {
+        self.start.fmt(w)?;
+        write!(w, "/")?;
+        self.end.fmt(w)?;
+
+        Ok(())
+    }
+}
+
+pub struct PeriodOfTimeDurationValue<StartT, DurationT> {
+    start: StartT,
+    duration: DurationT,
+}
+
+impl<StartT: AsValueType<DateTime>, DurationT: AsValueType<Duration>> AsValueType<PeriodOfTime>
+    for PeriodOfTimeDurationValue<StartT, DurationT>
+{
+    fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result {
+        self.start.fmt(w)?;
+        write!(w, "/")?;
+        self.duration.fmt(w)?;
+
+        Ok(())
+    }
 }
 
 pub struct PeriodOfTimeBuilder<StartT> {
@@ -90,41 +119,23 @@ impl<StartT: AsValueType<DateTime>> PeriodOfTimeBuilder<StartT> {
     pub fn end<EndT: AsValueType<DateTime>>(
         self,
         end: EndT,
-    ) -> PeriodOfTimeValue<StartT, EndT, NeverValue> {
+    ) -> PeriodOfTimeStartEndValue<StartT, EndT> {
         // TODO validate that start is earlier than end
-        PeriodOfTimeValue::Explicit(self.start, end)
+        PeriodOfTimeStartEndValue {
+            start: self.start,
+            end,
+        }
     }
 
     pub fn duration<DurationT: AsValueType<Duration>>(
         self,
         duration: DurationT,
-    ) -> PeriodOfTimeValue<StartT, NeverValue, DurationT> {
+    ) -> PeriodOfTimeDurationValue<StartT, DurationT> {
         // TODO validate that duration is non-negative (and non-zero?)
-        PeriodOfTimeValue::Start(self.start, duration)
-    }
-}
-
-impl<
-        StartT: AsValueType<DateTime>,
-        EndT: AsValueType<DateTime>,
-        DurationT: AsValueType<Duration>,
-    > AsValueType<PeriodOfTime> for PeriodOfTimeValue<StartT, EndT, DurationT>
-{
-    fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result {
-        match self {
-            PeriodOfTimeValue::Explicit(start, end) => {
-                start.fmt(w)?;
-                write!(w, "/")?;
-                end.fmt(w)?;
-            }
-            PeriodOfTimeValue::Start(start, duration) => {
-                start.fmt(w)?;
-                write!(w, "/")?;
-                duration.fmt(w)?;
-            }
+        PeriodOfTimeDurationValue {
+            start: self.start,
+            duration,
         }
-
-        Ok(())
     }
 }
 
