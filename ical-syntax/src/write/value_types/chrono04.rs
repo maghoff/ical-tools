@@ -4,11 +4,8 @@ use chrono::{Datelike as _, Timelike as _};
 
 use super::AsValueType;
 use crate::{
-    structure::{
-        composite_value_types::Any2,
-        value_types::{Date, DateTime, DateTimeUtc, Duration},
-    },
-    write::value_types::ToAny,
+    structure::value_types::{Date, DateTime, DateTimeUtc, Duration},
+    write::value_types::ToValueType,
 };
 
 /// `chrono::NaiveDateTime` corresponds to the _floating_ form of a DateTime
@@ -27,7 +24,7 @@ impl AsValueType<DateTime> for chrono::NaiveDateTime {
     }
 }
 
-impl ToAny<Any2<DateTime, Date>> for chrono::NaiveDateTime {
+impl ToValueType for chrono::NaiveDateTime {
     type ValueType = DateTime;
 }
 
@@ -53,7 +50,7 @@ impl AsValueType<DateTimeUtc> for chrono::DateTime<chrono::Utc> {
     }
 }
 
-impl ToAny<Any2<DateTime, Date>> for chrono::DateTime<chrono::Utc> {
+impl ToValueType for chrono::DateTime<chrono::Utc> {
     type ValueType = DateTime;
 }
 
@@ -63,7 +60,7 @@ impl AsValueType<Date> for chrono::NaiveDate {
     }
 }
 
-impl ToAny<Any2<DateTime, Date>> for chrono::NaiveDate {
+impl ToValueType for chrono::NaiveDate {
     type ValueType = Date;
 }
 

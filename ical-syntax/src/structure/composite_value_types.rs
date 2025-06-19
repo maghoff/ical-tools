@@ -73,6 +73,8 @@ pub struct Any2<T0, T1> {
 
 impl<T0: ValueType, T1: ValueType> CompositeValueType for Any2<T0, T1> {}
 
+pub trait IsA<AnyT> {}
+
 pub struct Any3<T0, T1, T2> {
     _phantom0: T0,
     _phantom1: T1,

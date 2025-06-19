@@ -6,7 +6,7 @@ use std::{borrow::Borrow, fmt::Write};
 
 use super::{composite_value_types::AsCompositeValueType, PropertyValueWriter};
 use crate::structure::{
-    composite_value_types::{Any2, Any3, List},
+    composite_value_types::{Any2, Any3, IsA, List},
     icalstream::parameters::Value,
     value_types::*,
     ValueType,
@@ -42,7 +42,7 @@ impl<T: Borrow<bool>> AsValueType<Boolean> for T {
 // See the chrono04 and jiff02 modules for AsValueType<DateTime>,
 // AsValueType<DateTimeUtc> and AsValueType<Date>
 
-trait ToAny<A> {
+trait ToValueType {
     type ValueType;
 }
 
@@ -50,8 +50,8 @@ impl<RustType, VT, T1, T2> AsCompositeValueType<Any2<T1, T2>> for RustType
 where
     T1: ValueType,
     T2: ValueType,
-    VT: ValueType,
-    RustType: ToAny<Any2<T1, T2>, ValueType = VT> + AsCompositeValueType<VT>,
+    VT: ValueType + IsA<Any2<T1, T2>>,
+    RustType: AsCompositeValueType<VT> + ToValueType<ValueType = VT>,
 {
     fn write_into<W: std::fmt::Write>(
         self,

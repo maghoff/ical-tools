@@ -2,11 +2,8 @@
 
 use super::AsValueType;
 use crate::{
-    structure::{
-        composite_value_types::Any2,
-        value_types::{Date, DateTime, DateTimeUtc, Duration},
-    },
-    write::value_types::ToAny,
+    structure::value_types::{Date, DateTime, DateTimeUtc, Duration},
+    write::value_types::ToValueType,
 };
 
 /// `jiff::civil::DateTime` corresponds to the _floating_ form of a DateTime
@@ -25,7 +22,7 @@ impl AsValueType<DateTime> for jiff::civil::DateTime {
     }
 }
 
-impl ToAny<Any2<DateTime, Date>> for jiff::civil::DateTime {
+impl ToValueType for jiff::civil::DateTime {
     type ValueType = DateTime;
 }
 
@@ -52,14 +49,14 @@ impl AsValueType<DateTime> for UtcForm {
     }
 }
 
-impl ToAny<Any2<DateTime, Date>> for UtcForm {
-    type ValueType = DateTime;
-}
-
 impl AsValueType<DateTimeUtc> for UtcForm {
     fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
         <Self as AsValueType<DateTime>>::fmt(self, w)
     }
+}
+
+impl ToValueType for UtcForm {
+    type ValueType = DateTime;
 }
 
 impl AsValueType<Date> for jiff::civil::Date {
@@ -68,7 +65,7 @@ impl AsValueType<Date> for jiff::civil::Date {
     }
 }
 
-impl ToAny<Any2<DateTime, Date>> for jiff::civil::Date {
+impl ToValueType for jiff::civil::Date {
     type ValueType = Date;
 }
 

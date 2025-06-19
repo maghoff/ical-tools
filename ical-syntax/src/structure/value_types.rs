@@ -1,7 +1,10 @@
 //! Property value data types, as defined in [RFC 5545
 //! 3.3](https://www.rfc-editor.org/rfc/rfc5545#section-3.3)
 
-use crate::structure::ValueType;
+use crate::structure::{
+    composite_value_types::{Any2, IsA},
+    ValueType,
+};
 
 /// Binary
 ///
@@ -167,6 +170,8 @@ impl ValueType for Date {
     const NAME: &'static str = "DATE";
 }
 
+impl IsA<Any2<DateTime, Date>> for Date {}
+
 /// Date-Time
 ///
 /// Value Name:  DATE-TIME
@@ -300,6 +305,8 @@ pub struct DateTime;
 impl ValueType for DateTime {
     const NAME: &'static str = "DATE-TIME";
 }
+
+impl IsA<Any2<DateTime, Date>> for DateTime {}
 
 /// Date-Time in UTC format
 ///
