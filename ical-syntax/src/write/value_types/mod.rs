@@ -46,18 +46,18 @@ trait ToValueType {
     type ValueType;
 }
 
-impl<RustType, VT, T1, T2> AsCompositeValueType<Any2<T1, T2>> for RustType
+impl<RustType, VT, T0, T1> AsCompositeValueType<Any2<T0, T1>> for RustType
 where
+    T0: ValueType,
     T1: ValueType,
-    T2: ValueType,
-    VT: ValueType + IsA<Any2<T1, T2>>,
+    VT: ValueType + IsA<Any2<T0, T1>>,
     RustType: AsCompositeValueType<VT> + ToValueType<ValueType = VT>,
 {
     fn write_into<W: std::fmt::Write>(
         self,
         mut prop_value_writer: PropertyValueWriter<W>,
     ) -> std::fmt::Result {
-        if VT::NAME != T1::NAME {
+        if VT::NAME != T0::NAME {
             prop_value_writer.param(Value, VT::NAME)?;
         }
         <Self as AsCompositeValueType<VT>>::write_into(self, prop_value_writer)
