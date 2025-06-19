@@ -42,7 +42,7 @@ impl<T: Borrow<bool>> AsValueType<Boolean> for T {
 // See the chrono04 and jiff02 modules for AsValueType<DateTime>,
 // AsValueType<DateTimeUtc> and AsValueType<Date>
 
-trait ToValueType {
+pub trait ToValueType {
     type ValueType;
 }
 

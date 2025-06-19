@@ -233,7 +233,13 @@ mod test {
 
     use composite_value_types::{Any2, List};
 
-    use crate::write::{value_types::AsValueType, LineStream};
+    use crate::{
+        structure::composite_value_types::IsA,
+        write::{
+            value_types::{AsValueType, ToValueType},
+            LineStream,
+        },
+    };
 
     use super::*;
 
@@ -244,7 +250,7 @@ mod test {
         type CompositeValueType = TextValue;
     }
 
-    struct TextValue;
+    pub struct TextValue;
     impl ValueType for TextValue {
         const NAME: &'static str = "TEXT";
     }
@@ -253,6 +259,10 @@ mod test {
         fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result {
             write!(w, "{}", self)
         }
+    }
+
+    impl ToValueType for &'static str {
+        type ValueType = TextValue;
     }
 
     struct TextParamItem;
@@ -276,6 +286,24 @@ mod test {
             write!(w, "{}", self)
         }
     }
+
+    pub struct UnitValue;
+    impl ValueType for UnitValue {
+        const NAME: &'static str = "UNIT";
+    }
+
+    impl AsValueType<UnitValue> for () {
+        fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result {
+            write!(w, "()")
+        }
+    }
+
+    impl ToValueType for () {
+        type ValueType = UnitValue;
+    }
+
+    impl IsA<Any2<TextValue, UnitValue>> for TextValue {}
+    impl IsA<Any2<TextValue, UnitValue>> for UnitValue {}
 
     #[test]
     fn singular_parameter() -> std::fmt::Result {
@@ -437,30 +465,11 @@ mod test {
 
     #[test]
     fn value_choice() -> std::fmt::Result {
-        struct UnitValue;
-        impl ValueType for UnitValue {
-            const NAME: &'static str = "UNIT";
-        }
-
-        impl AsValueType<UnitValue> for () {
-            fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result {
-                write!(w, "()")
-            }
-        }
-
         struct ChoiceTestProp;
         impl Property for ChoiceTestProp {
             const NAME: &'static str = "TEST";
 
             type CompositeValueType = Any2<TextValue, UnitValue>;
-        }
-
-        pub enum ChoiceValue<
-            T0: AsValueType<TextValue> = &'static str,
-            T1: AsValueType<UnitValue> = (),
-        > {
-            Text(T0),
-            Unit(T1),
         }
 
         struct Value;
@@ -471,46 +480,15 @@ mod test {
             type ParamValueType = One<BarewordParamItem>;
         }
 
-        // The following impls are amenable to code generation:
-
-        impl<T0: AsValueType<TextValue>> ChoiceValue<T0> {
-            pub fn text(x: T0) -> Self {
-                Self::Text(x)
-            }
-        }
-
-        impl<T1: AsValueType<UnitValue>> ChoiceValue<&'static str, T1> {
-            pub fn unit(x: T1) -> Self {
-                Self::Unit(x)
-            }
-        }
-
-        impl<T0: AsValueType<TextValue>, T1: AsValueType<UnitValue>>
-            AsCompositeValueType<Any2<TextValue, UnitValue>> for ChoiceValue<T0, T1>
-        {
-            fn write_into<W: Write>(
-                self,
-                mut prop_value_writer: PropertyValueWriter<W>,
-            ) -> std::fmt::Result {
-                match self {
-                    ChoiceValue::Text(x) => x.write_into(prop_value_writer),
-                    ChoiceValue::Unit(x) => {
-                        prop_value_writer.param(Value, UnitValue::NAME)?;
-                        x.write_into(prop_value_writer)
-                    }
-                }
-            }
-        }
-
         let mut buf = String::new();
         let mut line_stream = LineStream::new(&mut buf);
 
         let mut prop = PropertyWriter::<_, ChoiceTestProp>::new(&mut line_stream)?;
-        prop.value(ChoiceValue::text("test text"))?;
+        prop.value("test text")?;
         prop.end()?;
 
         let mut prop = PropertyWriter::<_, ChoiceTestProp>::new(&mut line_stream)?;
-        prop.value(ChoiceValue::unit(()))?;
+        prop.value(())?;
         prop.end()?;
 
         assert_eq!(&buf, "TEST:test text\r\nTEST;VALUE=UNIT:()\r\n");
