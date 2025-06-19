@@ -73,10 +73,7 @@ mod test {
         let mut ev = ico.component(EventC)?;
         ev.simple_property(DateTimeStamp, dtstamp)?;
         ev.simple_property(Uid, "unique identifier")?;
-        ev.simple_property(
-            DateTimeStart,
-            crate::write::value_types::DateTimeOrDate::from(dtstamp.date_naive()),
-        )?;
+        ev.simple_property(DateTimeStart, dtstamp.date_naive())?;
         ev.simple_property(Summary, "summary text")?;
         ev.simple_property(TimeTransparency, TimeTransparencyValue::Transparent)?;
         ev.end()?;
@@ -132,10 +129,7 @@ mod test {
         let mut ev = ico.component(EventC)?;
         ev.simple_property(DateTimeStamp, UtcForm::from_civil(dtstamp))?;
         ev.simple_property(Uid, "unique identifier")?;
-        ev.simple_property(
-            DateTimeStart,
-            crate::write::value_types::DateTimeOrDate::from(dtstamp.date()),
-        )?;
+        ev.simple_property(DateTimeStart, dtstamp.date())?;
         ev.simple_property(Summary, "summary text")?;
         ev.simple_property(TimeTransparency, TimeTransparencyValue::Transparent)?;
         ev.end()?;

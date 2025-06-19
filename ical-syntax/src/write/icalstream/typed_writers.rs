@@ -145,15 +145,9 @@ impl<'a, W: Write> EventWriter<'a, W> {
         recurrence_datetimes,
         properties::date_and_time::RecurrenceDateTimes
     );
+    simple_property!(dtstart, properties::date_and_time::DateTimeStart);
 
     /* == Custom simple property functions == */
-
-    pub fn dtstart<T0: AsValueType<value_types::DateTime>, T1: AsValueType<value_types::Date>>(
-        &mut self,
-        dtstart: impl Into<crate::write::value_types::DateTimeOrDate<T0, T1>>,
-    ) -> std::fmt::Result {
-        self.simple_property(properties::date_and_time::DateTimeStart, dtstart.into())
-    }
 
     pub fn time_transparency(
         &mut self,

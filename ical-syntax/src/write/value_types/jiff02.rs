@@ -1,7 +1,13 @@
 #![cfg(feature = "jiff02")]
 
-use super::{AsValueType, DateTimeOrDate, NeverValue};
-use crate::structure::value_types::{Date, DateTime, DateTimeUtc, Duration};
+use super::AsValueType;
+use crate::{
+    structure::{
+        composite_value_types::Any2,
+        value_types::{Date, DateTime, DateTimeUtc, Duration},
+    },
+    write::value_types::ToAny,
+};
 
 /// `jiff::civil::DateTime` corresponds to the _floating_ form of a DateTime
 impl AsValueType<DateTime> for jiff::civil::DateTime {
@@ -19,10 +25,8 @@ impl AsValueType<DateTime> for jiff::civil::DateTime {
     }
 }
 
-impl From<jiff::civil::DateTime> for DateTimeOrDate<jiff::civil::DateTime, NeverValue> {
-    fn from(value: jiff::civil::DateTime) -> Self {
-        Self::DateTime(value)
-    }
+impl ToAny<Any2<DateTime, Date>> for jiff::civil::DateTime {
+    type ValueType = DateTime;
 }
 
 pub struct UtcForm {
@@ -48,15 +52,13 @@ impl AsValueType<DateTime> for UtcForm {
     }
 }
 
+impl ToAny<Any2<DateTime, Date>> for UtcForm {
+    type ValueType = DateTime;
+}
+
 impl AsValueType<DateTimeUtc> for UtcForm {
     fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
         <Self as AsValueType<DateTime>>::fmt(self, w)
-    }
-}
-
-impl From<UtcForm> for DateTimeOrDate<UtcForm, NeverValue> {
-    fn from(value: UtcForm) -> Self {
-        Self::DateTime(value)
     }
 }
 
@@ -66,10 +68,8 @@ impl AsValueType<Date> for jiff::civil::Date {
     }
 }
 
-impl From<jiff::civil::Date> for DateTimeOrDate<NeverValue, jiff::civil::Date> {
-    fn from(value: jiff::civil::Date) -> Self {
-        Self::Date(value)
-    }
+impl ToAny<Any2<DateTime, Date>> for jiff::civil::Date {
+    type ValueType = Date;
 }
 
 impl AsValueType<Duration> for jiff::Span {

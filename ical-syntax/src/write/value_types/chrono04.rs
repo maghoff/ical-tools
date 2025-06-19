@@ -2,8 +2,14 @@
 
 use chrono::{Datelike as _, Timelike as _};
 
-use super::{AsValueType, DateTimeOrDate, NeverValue};
-use crate::structure::value_types::{Date, DateTime, DateTimeUtc, Duration};
+use super::AsValueType;
+use crate::{
+    structure::{
+        composite_value_types::Any2,
+        value_types::{Date, DateTime, DateTimeUtc, Duration},
+    },
+    write::value_types::ToAny,
+};
 
 /// `chrono::NaiveDateTime` corresponds to the _floating_ form of a DateTime
 impl AsValueType<DateTime> for chrono::NaiveDateTime {
@@ -21,10 +27,8 @@ impl AsValueType<DateTime> for chrono::NaiveDateTime {
     }
 }
 
-impl From<chrono::NaiveDateTime> for DateTimeOrDate<chrono::NaiveDateTime, NeverValue> {
-    fn from(value: chrono::NaiveDateTime) -> Self {
-        Self::DateTime(value)
-    }
+impl ToAny<Any2<DateTime, Date>> for chrono::NaiveDateTime {
+    type ValueType = DateTime;
 }
 
 /// `chrono::DateTime<chrono::Utc>` corresponds to the _UTC_ form of a DateTime
@@ -49,12 +53,8 @@ impl AsValueType<DateTimeUtc> for chrono::DateTime<chrono::Utc> {
     }
 }
 
-impl From<chrono::DateTime<chrono::Utc>>
-    for DateTimeOrDate<chrono::DateTime<chrono::Utc>, NeverValue>
-{
-    fn from(value: chrono::DateTime<chrono::Utc>) -> Self {
-        Self::DateTime(value)
-    }
+impl ToAny<Any2<DateTime, Date>> for chrono::DateTime<chrono::Utc> {
+    type ValueType = DateTime;
 }
 
 impl AsValueType<Date> for chrono::NaiveDate {
@@ -63,10 +63,8 @@ impl AsValueType<Date> for chrono::NaiveDate {
     }
 }
 
-impl From<chrono::NaiveDate> for DateTimeOrDate<NeverValue, chrono::NaiveDate> {
-    fn from(value: chrono::NaiveDate) -> Self {
-        Self::Date(value)
-    }
+impl ToAny<Any2<DateTime, Date>> for chrono::NaiveDate {
+    type ValueType = Date;
 }
 
 impl AsValueType<Duration> for chrono::TimeDelta {

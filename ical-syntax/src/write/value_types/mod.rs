@@ -20,14 +20,6 @@ pub trait AsValueType<To: ValueType> {
     fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result;
 }
 
-pub enum NeverValue {}
-
-impl<V: ValueType> AsValueType<V> for NeverValue {
-    fn fmt<W: std::fmt::Write>(&self, _w: &mut W) -> std::fmt::Result {
-        unreachable!()
-    }
-}
-
 // TODO impl<T: AsRef<[u8]>> AsValueType<Binary> for T {
 // When using Binary, two parameters must be set: VALUE=BINARY and ENCODING=BASE64
 // I _think_ BINARY is never the default type, so the VALUE parameter is taken
@@ -50,26 +42,25 @@ impl<T: Borrow<bool>> AsValueType<Boolean> for T {
 // See the chrono04 and jiff02 modules for AsValueType<DateTime>,
 // AsValueType<DateTimeUtc> and AsValueType<Date>
 
-/// A choice between the [DATETIME][DateTime] and [DATE][Date] value types.
-pub enum DateTimeOrDate<DateTimeT, DateT> {
-    DateTime(DateTimeT),
-    Date(DateT),
+trait ToAny<A> {
+    type ValueType;
 }
 
-impl<DateTimeT: AsValueType<DateTime>, DateT: AsValueType<Date>>
-    AsCompositeValueType<Any2<DateTime, Date>> for DateTimeOrDate<DateTimeT, DateT>
+impl<RustType, VT, T1, T2> AsCompositeValueType<Any2<T1, T2>> for RustType
+where
+    T1: ValueType,
+    T2: ValueType,
+    VT: ValueType,
+    RustType: ToAny<Any2<T1, T2>, ValueType = VT> + AsCompositeValueType<VT>,
 {
     fn write_into<W: std::fmt::Write>(
         self,
         mut prop_value_writer: PropertyValueWriter<W>,
     ) -> std::fmt::Result {
-        match self {
-            DateTimeOrDate::DateTime(x) => x.write_into(prop_value_writer),
-            DateTimeOrDate::Date(x) => {
-                prop_value_writer.param(Value, Date::NAME)?;
-                x.write_into(prop_value_writer)
-            }
+        if VT::NAME != T1::NAME {
+            prop_value_writer.param(Value, VT::NAME)?;
         }
+        <Self as AsCompositeValueType<VT>>::write_into(self, prop_value_writer)
     }
 }
 
