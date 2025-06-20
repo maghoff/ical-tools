@@ -73,7 +73,12 @@ mod test {
         let mut ev = ico.component(EventC)?;
         ev.simple_property(DateTimeStamp, dtstamp)?;
         ev.simple_property(Uid, "unique identifier")?;
+
+        // Just test all the different options while we're at it:
         ev.simple_property(DateTimeStart, dtstamp.date_naive())?;
+        ev.simple_property(DateTimeStart, dtstamp.naive_utc())?;
+        ev.simple_property(DateTimeStart, dtstamp)?;
+
         ev.simple_property(Summary, "summary text")?;
         ev.simple_property(TimeTransparency, TimeTransparencyValue::Transparent)?;
         ev.end()?;
@@ -89,6 +94,8 @@ mod test {
             DTSTAMP:20240626T120000Z\r\n\
             UID:unique identifier\r\n\
             DTSTART;VALUE=DATE:20240626\r\n\
+            DTSTART:20240626T120000\r\n\
+            DTSTART:20240626T120000Z\r\n\
             SUMMARY:summary text\r\n\
             TRANSP:TRANSPARENT\r\n\
             END:VEVENT\r\n\
@@ -129,7 +136,12 @@ mod test {
         let mut ev = ico.component(EventC)?;
         ev.simple_property(DateTimeStamp, UtcForm::from_civil(dtstamp))?;
         ev.simple_property(Uid, "unique identifier")?;
+
+        // Just test all the different options while we're at it:
         ev.simple_property(DateTimeStart, dtstamp.date())?;
+        ev.simple_property(DateTimeStart, dtstamp)?;
+        ev.simple_property(DateTimeStart, UtcForm::from_civil(dtstamp))?;
+
         ev.simple_property(Summary, "summary text")?;
         ev.simple_property(TimeTransparency, TimeTransparencyValue::Transparent)?;
         ev.end()?;
@@ -145,6 +157,8 @@ mod test {
             DTSTAMP:20240626T120000Z\r\n\
             UID:unique identifier\r\n\
             DTSTART;VALUE=DATE:20240626\r\n\
+            DTSTART:20240626T120000\r\n\
+            DTSTART:20240626T120000Z\r\n\
             SUMMARY:summary text\r\n\
             TRANSP:TRANSPARENT\r\n\
             END:VEVENT\r\n\
