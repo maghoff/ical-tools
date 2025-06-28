@@ -21,6 +21,14 @@ impl<StartT: AsValueType<DateTime>, EndT: AsValueType<DateTime>> AsValueType<Per
     }
 }
 
+impl<StartT: AsValueType<DateTime>, EndT: AsValueType<DateTime>> AsValueType<PeriodOfTime>
+    for &PeriodOfTimeStartEndValue<StartT, EndT>
+{
+    fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result {
+        AsValueType::<PeriodOfTime>::fmt(*self, w)
+    }
+}
+
 pub struct PeriodOfTimeDurationValue<StartT, DurationT> {
     start: StartT,
     duration: DurationT,
@@ -35,6 +43,14 @@ impl<StartT: AsValueType<DateTime>, DurationT: AsValueType<Duration>> AsValueTyp
         self.duration.fmt(w)?;
 
         Ok(())
+    }
+}
+
+impl<StartT: AsValueType<DateTime>, DurationT: AsValueType<Duration>> AsValueType<PeriodOfTime>
+    for &PeriodOfTimeDurationValue<StartT, DurationT>
+{
+    fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result {
+        AsValueType::<PeriodOfTime>::fmt(*self, w)
     }
 }
 

@@ -239,7 +239,7 @@ pub struct RecurrenceDateTimes;
 impl Property for RecurrenceDateTimes {
     const NAME: &'static str = "RDATE";
 
-    type CompositeValueType = Any3<List<DateTime>, List<Date>, List<PeriodOfTime>>;
+    type CompositeValueType = List<Any3<DateTime, Date, PeriodOfTime>>;
 }
 
 impl EventCProperty for RecurrenceDateTimes {}

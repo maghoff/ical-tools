@@ -65,8 +65,6 @@ mod test {
     #[cfg(feature = "chrono04")]
     #[test]
     fn recurrence_datetimes() -> std::fmt::Result {
-        use crate::write::value_types::DateList;
-
         use super::typed_writers::ICalStreamWriter;
 
         let datetimes = [
@@ -84,7 +82,13 @@ mod test {
         let mut ico = ics.icalendar_object("-//test//")?;
 
         let mut ev = ico.event()?;
-        ev.recurrence_datetimes(DateList(datetimes.iter().map(|dt| dt.date_naive())))?;
+        ev.recurrence_datetimes(datetimes.iter().map(|dt| dt.date_naive()))?;
+        ev.recurrence_datetimes(datetimes.iter())?;
+        ev.recurrence_datetimes(datetimes)?;
+
+        #[allow(clippy::needless_borrows_for_generic_args)]
+        ev.recurrence_datetimes(&datetimes)?;
+
         ev.end()?;
 
         ico.end()?;
@@ -96,6 +100,9 @@ mod test {
             PRODID:-//test//\r\n\
             BEGIN:VEVENT\r\n\
             RDATE;VALUE=DATE:20240626,20240627\r\n\
+            RDATE:20240626T120000Z,20240627T120000Z\r\n\
+            RDATE:20240626T120000Z,20240627T120000Z\r\n\
+            RDATE:20240626T120000Z,20240627T120000Z\r\n\
             END:VEVENT\r\n\
             END:VCALENDAR\r\n"
         );

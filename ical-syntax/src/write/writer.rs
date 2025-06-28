@@ -229,12 +229,13 @@ impl<'a, 'b: 'a, W: Write> PropertyValueWriter<'a, 'b, W> {
 
 #[cfg(test)]
 mod test {
-    use std::{borrow::Borrow, fmt::Display};
-
-    use composite_value_types::{Any2, List};
+    use std::{
+        borrow::Borrow,
+        fmt::{self, Display},
+    };
 
     use crate::{
-        structure::composite_value_types::IsA,
+        structure::composite_value_types::{Any2, IsA, List},
         write::{
             value_types::{AsValueType, ToValueType},
             LineStream,
@@ -255,13 +256,28 @@ mod test {
         const NAME: &'static str = "TEXT";
     }
 
-    impl<T: Display> AsValueType<TextValue> for T {
+    impl<T> AsValueType<TextValue> for T
+    where
+        T: Display,
+    {
         fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result {
             write!(w, "{}", self)
         }
     }
 
-    impl ToValueType for &'static str {
+    impl ToValueType for &str {
+        type ValueType = TextValue;
+    }
+
+    impl ToValueType for &&str {
+        type ValueType = TextValue;
+    }
+
+    impl ToValueType for String {
+        type ValueType = TextValue;
+    }
+
+    impl ToValueType for fmt::Arguments<'_> {
         type ValueType = TextValue;
     }
 
@@ -411,6 +427,27 @@ mod test {
     }
 
     #[test]
+    fn value() -> std::fmt::Result {
+        struct TestProp;
+        impl Property for TestProp {
+            const NAME: &'static str = "TEST";
+
+            type CompositeValueType = TextValue;
+        }
+
+        let mut buf = String::new();
+        let mut line_stream = LineStream::new(&mut buf);
+        let mut prop = PropertyWriter::<_, TestProp>::new(&mut line_stream)?;
+
+        prop.value("test".to_owned())?;
+        prop.end()?;
+
+        assert_eq!(&buf, "TEST:test\r\n");
+
+        Ok(())
+    }
+
+    #[test]
     fn value_tuple() -> std::fmt::Result {
         struct TupleTestProp;
         impl Property for TupleTestProp {
@@ -472,14 +509,6 @@ mod test {
             type CompositeValueType = Any2<TextValue, UnitValue>;
         }
 
-        struct Value;
-
-        impl Param for Value {
-            const NAME: &'static str = "VALUE";
-
-            type ParamValueType = One<BarewordParamItem>;
-        }
-
         let mut buf = String::new();
         let mut line_stream = LineStream::new(&mut buf);
 
@@ -492,6 +521,55 @@ mod test {
         prop.end()?;
 
         assert_eq!(&buf, "TEST:test text\r\nTEST;VALUE=UNIT:()\r\n");
+
+        Ok(())
+    }
+
+    #[test]
+    fn value_list_choice() -> std::fmt::Result {
+        struct ListTestProp;
+        impl Property for ListTestProp {
+            const NAME: &'static str = "TEST";
+
+            type CompositeValueType = List<Any2<TextValue, UnitValue>>;
+        }
+
+        let mut buf = String::new();
+        let mut line_stream = LineStream::new(&mut buf);
+
+        let mut prop = PropertyWriter::<_, ListTestProp>::new(&mut line_stream)?;
+        prop.value(
+            ["test", "value"]
+                .iter()
+                .enumerate()
+                .map(|(i, x)| format!("{x}:{i}")),
+        )?;
+        prop.end()?;
+
+        let mut prop = PropertyWriter::<_, ListTestProp>::new(&mut line_stream)?;
+        prop.value(&["test", "value"])?;
+        prop.end()?;
+
+        let mut prop = PropertyWriter::<_, ListTestProp>::new(&mut line_stream)?;
+        prop.value(&["test", "value"] as &[_])?;
+        prop.end()?;
+
+        let mut prop = PropertyWriter::<_, ListTestProp>::new(&mut line_stream)?;
+        prop.value(["test", "value"])?;
+        prop.end()?;
+
+        let mut prop = PropertyWriter::<_, ListTestProp>::new(&mut line_stream)?;
+        prop.value([(), ()])?;
+        prop.end()?;
+
+        assert_eq!(
+            &buf,
+            "TEST:test:0,value:1\r\n\
+            TEST:test,value\r\n\
+            TEST:test,value\r\n\
+            TEST:test,value\r\n\
+            TEST;VALUE=UNIT:(),()\r\n"
+        );
 
         Ok(())
     }

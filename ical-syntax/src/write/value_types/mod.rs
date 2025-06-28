@@ -4,10 +4,8 @@ mod period_of_time;
 
 use std::{borrow::Borrow, fmt::Write};
 
-use super::{composite_value_types::AsCompositeValueType, PropertyValueWriter};
 use crate::structure::{
-    composite_value_types::{Any2, Any3, IsA, List},
-    icalstream::parameters::Value,
+    composite_value_types::{Any2, Any3, IsA, ValueTypeChoice},
     value_types::*,
     ValueType,
 };
@@ -18,6 +16,35 @@ pub use period_of_time::{
 
 pub trait AsValueType<To: ValueType> {
     fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result;
+}
+
+pub trait AsValueTypeChoice<To: ValueTypeChoice> {
+    type Type: ValueType;
+}
+
+pub trait ToValueType {
+    type ValueType;
+}
+
+impl<RustType, VT, T0, T1> AsValueTypeChoice<Any2<T0, T1>> for RustType
+where
+    T0: ValueType,
+    T1: ValueType,
+    VT: ValueType + IsA<Any2<T0, T1>>,
+    RustType: AsValueType<VT> + ToValueType<ValueType = VT>,
+{
+    type Type = VT;
+}
+
+impl<RustType, VT, T0, T1, T2> AsValueTypeChoice<Any3<T0, T1, T2>> for RustType
+where
+    T0: ValueType,
+    T1: ValueType,
+    T2: ValueType,
+    VT: ValueType + IsA<Any3<T0, T1, T2>>,
+    RustType: AsValueType<VT> + ToValueType<ValueType = VT>,
+{
+    type Type = VT;
 }
 
 // TODO impl<T: AsRef<[u8]>> AsValueType<Binary> for T {
@@ -41,28 +68,6 @@ impl<T: Borrow<bool>> AsValueType<Boolean> for T {
 
 // See the chrono04 and jiff02 modules for AsValueType<DateTime>,
 // AsValueType<DateTimeUtc> and AsValueType<Date>
-
-pub trait ToValueType {
-    type ValueType;
-}
-
-impl<RustType, VT, T0, T1> AsCompositeValueType<Any2<T0, T1>> for RustType
-where
-    T0: ValueType,
-    T1: ValueType,
-    VT: ValueType + IsA<Any2<T0, T1>>,
-    RustType: AsCompositeValueType<VT> + ToValueType<ValueType = VT>,
-{
-    fn write_into<W: std::fmt::Write>(
-        self,
-        mut prop_value_writer: PropertyValueWriter<W>,
-    ) -> std::fmt::Result {
-        if VT::NAME != T0::NAME {
-            prop_value_writer.param(Value, VT::NAME)?;
-        }
-        <Self as AsCompositeValueType<VT>>::write_into(self, prop_value_writer)
-    }
-}
 
 // TODO impl AsValueType<Float> for misc f-types
 
@@ -104,45 +109,6 @@ impl std::fmt::Display for TimeTransparency {
 // TODO impl AsValueType<Uri>
 
 // TODO impl AsValueType<UtcOffset>
-
-pub struct DateTimeList<V: AsCompositeValueType<List<DateTime>>>(pub V);
-
-impl<V: AsCompositeValueType<List<DateTime>>>
-    AsCompositeValueType<Any3<List<DateTime>, List<Date>, List<PeriodOfTime>>> for DateTimeList<V>
-{
-    fn write_into<W: Write>(self, prop_value_writer: PropertyValueWriter<W>) -> std::fmt::Result {
-        self.0.write_into(prop_value_writer)
-    }
-}
-
-pub struct DateList<V: AsCompositeValueType<List<Date>>>(pub V);
-
-impl<V: AsCompositeValueType<List<Date>>>
-    AsCompositeValueType<Any3<List<DateTime>, List<Date>, List<PeriodOfTime>>> for DateList<V>
-{
-    fn write_into<W: Write>(
-        self,
-        mut prop_value_writer: PropertyValueWriter<W>,
-    ) -> std::fmt::Result {
-        prop_value_writer.param(Value, Date::NAME)?;
-        self.0.write_into(prop_value_writer)
-    }
-}
-
-pub struct PeriodOfTimeList<V: AsCompositeValueType<List<PeriodOfTime>>>(pub V);
-
-impl<V: AsCompositeValueType<List<PeriodOfTime>>>
-    AsCompositeValueType<Any3<List<DateTime>, List<Date>, List<PeriodOfTime>>>
-    for PeriodOfTimeList<V>
-{
-    fn write_into<W: Write>(
-        self,
-        mut prop_value_writer: PropertyValueWriter<W>,
-    ) -> std::fmt::Result {
-        prop_value_writer.param(Value, PeriodOfTime::NAME)?;
-        self.0.write_into(prop_value_writer)
-    }
-}
 
 #[cfg(test)]
 mod test {

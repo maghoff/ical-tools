@@ -2,7 +2,7 @@
 //! 3.3](https://www.rfc-editor.org/rfc/rfc5545#section-3.3)
 
 use crate::structure::{
-    composite_value_types::{Any2, IsA},
+    composite_value_types::{Any2, Any3, IsA},
     ValueType,
 };
 
@@ -171,6 +171,7 @@ impl ValueType for Date {
 }
 
 impl IsA<Any2<DateTime, Date>> for Date {}
+impl IsA<Any3<DateTime, Date, PeriodOfTime>> for Date {}
 
 /// Date-Time
 ///
@@ -307,6 +308,7 @@ impl ValueType for DateTime {
 }
 
 impl IsA<Any2<DateTime, Date>> for DateTime {}
+impl IsA<Any3<DateTime, Date, PeriodOfTime>> for DateTime {}
 
 /// Date-Time in UTC format
 ///
@@ -522,6 +524,8 @@ pub struct PeriodOfTime;
 impl ValueType for PeriodOfTime {
     const NAME: &'static str = "PERIOD";
 }
+
+impl IsA<Any3<DateTime, Date, PeriodOfTime>> for PeriodOfTime {}
 
 /// Recurrence Rule
 ///

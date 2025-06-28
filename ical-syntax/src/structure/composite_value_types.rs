@@ -2,8 +2,8 @@ use std::marker::PhantomData;
 
 use super::{CompositeValueType, ValueType};
 
-// All the value types can be used directly as a CompositeValueType:
-impl<T: ValueType> CompositeValueType for T {}
+// TODO: Maybe tuples should impl ValueType directly? This might allow
+// encoding the value type of Version as Any2<Text, (Text, Text)>
 
 // Tuples of value types can be used as CompositeValueType:
 macro_rules! tuple_value_type {
@@ -40,7 +40,12 @@ pub struct List<V> {
     _phantom: PhantomData<V>,
 }
 
-impl<V: ValueType> CompositeValueType for List<V> {}
+impl<V: ValueTypeChoice> CompositeValueType for List<V> {}
+impl<V: ValueTypeChoice> ValueTypeList for List<V> {}
+
+impl<V: ValueTypeChoice> CompositeValueType for V {}
+
+pub trait ValueTypeList {}
 
 /// Choice of value types.
 ///
@@ -66,14 +71,23 @@ impl<V: ValueType> CompositeValueType for List<V> {}
 /// The first type argument is handled as the default value type, and no VALUE
 /// parameter will be set when it is used. When the second type is used, the
 /// VALUE parameter will be set accordingly.
+pub trait ValueTypeChoice {
+    type DefaultType: ValueType;
+}
+
+// A single ValueType is modeled as a predetermined choice of value:
+impl<T: ValueType> ValueTypeChoice for T {
+    type DefaultType = T;
+}
+
 pub struct Any2<T0, T1> {
     _phantom0: T0,
     _phantom1: T1,
 }
 
-impl<T0: ValueType, T1: ValueType> CompositeValueType for Any2<T0, T1> {}
-
-pub trait IsA<AnyT> {}
+impl<T0: ValueType, T1: ValueType> ValueTypeChoice for Any2<T0, T1> {
+    type DefaultType = T0;
+}
 
 pub struct Any3<T0, T1, T2> {
     _phantom0: T0,
@@ -81,7 +95,10 @@ pub struct Any3<T0, T1, T2> {
     _phantom2: T2,
 }
 
-impl<T0: CompositeValueType, T1: CompositeValueType, T2: CompositeValueType> CompositeValueType
-    for Any3<T0, T1, T2>
-{
+impl<T0: ValueType, T1: ValueType, T2: ValueType> ValueTypeChoice for Any3<T0, T1, T2> {
+    type DefaultType = T0;
 }
+
+/// Marker-trait for ValueType-s to indicate that they are a valid choice for
+/// a given ValueTypeChoice.
+pub trait IsA<AnyT> {}

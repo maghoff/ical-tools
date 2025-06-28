@@ -24,7 +24,17 @@ impl AsValueType<DateTime> for chrono::NaiveDateTime {
     }
 }
 
+impl AsValueType<DateTime> for &chrono::NaiveDateTime {
+    fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
+        AsValueType::<DateTime>::fmt(*self, w)
+    }
+}
+
 impl ToValueType for chrono::NaiveDateTime {
+    type ValueType = DateTime;
+}
+
+impl ToValueType for &chrono::NaiveDateTime {
     type ValueType = DateTime;
 }
 
@@ -44,13 +54,29 @@ impl AsValueType<DateTime> for chrono::DateTime<chrono::Utc> {
     }
 }
 
+impl AsValueType<DateTime> for &chrono::DateTime<chrono::Utc> {
+    fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
+        AsValueType::<DateTime>::fmt(*self, w)
+    }
+}
+
 impl AsValueType<DateTimeUtc> for chrono::DateTime<chrono::Utc> {
     fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
-        <Self as AsValueType<DateTime>>::fmt(self, w)
+        AsValueType::<DateTime>::fmt(self, w)
+    }
+}
+
+impl AsValueType<DateTimeUtc> for &chrono::DateTime<chrono::Utc> {
+    fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
+        AsValueType::<DateTime>::fmt(*self, w)
     }
 }
 
 impl ToValueType for chrono::DateTime<chrono::Utc> {
+    type ValueType = DateTime;
+}
+
+impl ToValueType for &chrono::DateTime<chrono::Utc> {
     type ValueType = DateTime;
 }
 
@@ -60,11 +86,27 @@ impl AsValueType<Date> for chrono::NaiveDate {
     }
 }
 
+impl AsValueType<Date> for &chrono::NaiveDate {
+    fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
+        AsValueType::<Date>::fmt(*self, w)
+    }
+}
+
 impl ToValueType for chrono::NaiveDate {
     type ValueType = Date;
 }
 
+impl ToValueType for &chrono::NaiveDate {
+    type ValueType = Date;
+}
+
 impl AsValueType<Duration> for chrono::TimeDelta {
+    fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
+        write!(w, "{}", self)
+    }
+}
+
+impl AsValueType<Duration> for &chrono::TimeDelta {
     fn fmt<W: std::fmt::Write>(&self, w: &mut W) -> std::fmt::Result {
         write!(w, "{}", self)
     }
@@ -88,6 +130,7 @@ mod test {
             .unwrap()
             .naive_utc();
         test_case::<DateTime>(datetime, "20240626T120000");
+        test_case::<DateTime>(&datetime, "20240626T120000");
     }
 
     #[test]
@@ -96,17 +139,20 @@ mod test {
             .unwrap()
             .to_utc();
         test_case::<DateTime>(datetime, "20240626T120000Z");
+        test_case::<DateTime>(&datetime, "20240626T120000Z");
     }
 
     #[test]
     fn date() {
         let date = chrono::NaiveDate::from_ymd_opt(2024, 6, 26).unwrap();
         test_case::<Date>(date, "20240626");
+        test_case::<Date>(&date, "20240626");
     }
 
     #[test]
     fn duration() {
         test_case::<Duration>(chrono::TimeDelta::hours(1), "PT3600S");
+        test_case::<Duration>(&chrono::TimeDelta::hours(1), "PT3600S");
     }
 
     #[test]
@@ -127,6 +173,11 @@ mod test {
 
         test_case::<PeriodOfTime>(
             PeriodOfTimeBuilder::start(start).end(end),
+            "20240626T120000Z/20240626T130000Z",
+        );
+
+        test_case::<PeriodOfTime>(
+            &PeriodOfTimeBuilder::start(start).end(end),
             "20240626T120000Z/20240626T130000Z",
         );
 
