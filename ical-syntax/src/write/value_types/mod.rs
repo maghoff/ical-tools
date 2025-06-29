@@ -14,6 +14,7 @@ pub use period_of_time::{
     PeriodOfTimeBuilder, PeriodOfTimeDurationValue, PeriodOfTimeStartEndValue,
 };
 
+/// Trait for representing a Rust type as the given Value Type.
 pub trait AsValueType<To: ValueType> {
     fn fmt<W: Write>(&self, w: &mut W) -> std::fmt::Result;
 }
@@ -22,6 +23,15 @@ pub trait AsValueTypeChoice<To: ValueTypeChoice> {
     type Type: ValueType;
 }
 
+/// Trait for marking a Rust type with a target Value Type to make it amenable
+/// for type inference in a value type choice setting. In general, a given
+/// Rust type could be converted to multiple Value Types. This trait is
+/// intended to mark the default or only target Value Type.
+///
+/// As an example, `chrono::DateTime<Utc>` can be used to represent both a
+/// `DateTime` and a `DateTimeUtc` value. It has an impl for `ToValueType`
+/// which sets `ValueType = DateTime`, so it can be used directly to represent
+/// `Any2<DateTime, Date>` as well.
 pub trait ToValueType {
     type ValueType;
 }
